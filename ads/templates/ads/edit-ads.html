@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section class="section-padding" style="background:#f8fafc">
+  <div class="container" style="max-width:900px">
+    <div class="mb-4"><small class="text-uppercase text-primary font-weight-bold">Seller studio</small><h1 class="font-weight-bold">Edit listing</h1></div>
+    {% if messages %}{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}{% endif %}
+    <div class="bg-white border rounded p-4">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-group">
+          <label>Current photos</label>
+          <div class="d-flex flex-wrap" style="gap:10px">
+            {% for image in ad_images %}
+            <img src="{{ image.image.url }}" alt="" style="width:110px;height:90px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'">
+            {% empty %}
+            <span class="text-muted">No photos attached.</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="edit-ad-images">Add photos (at least 2 total, up to 10)</label>
+          <input id="edit-ad-images" class="form-control-file" type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple>
+        </div>
+        <button class="btn btn-primary" type="submit">Save changes</button>
+        <a class="btn btn-outline-secondary" href="{% url 'ads-detail' ad.pk %}">Cancel</a>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock content %}

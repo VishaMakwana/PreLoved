@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="home-page">
+  <section class="home-hero">
+    <div class="home-hero-copy">
+      <span class="home-eyebrow"><span class="home-live-dot"></span> A better way to buy pre-loved</span>
+      <h1>Good finds.<br><span>Second chances.</span></h1>
+      <p>Discover great things nearby, meet the people behind them, and give useful items a new home.</p>
+      <form class="home-search" method="get" action="{% url 'ads-search' %}">
+        <label class="sr-only" for="home-search-query">What are you looking for?</label>
+        <input id="home-search-query" name="customword" type="search" placeholder="Try “desk”, “camera” or “bicycle”">
+        <label class="sr-only" for="home-search-city">City</label>
+        <input id="home-search-city" name="city" type="search" placeholder="Your city">
+        <button type="submit">Find something good <span aria-hidden="true">&rarr;</span></button>
+      </form>
+      <div class="home-hero-links">
+        <a href="{% url 'ads-listing' %}">Browse all listings</a>
+        <span>or</span>
+        <a href="{% url 'post-ads' %}">List something to sell</a>
+      </div>
+      <span class="home-csrf-token" hidden>{% csrf_token %}</span>
+    </div>
+    <div class="home-hero-art" aria-label="A selection of pre-loved outdoor and everyday items">
+      <div class="home-image-card home-image-main">
+        <img src="{% static 'images/uploads/2020/09/22/backpack.jpg' %}" alt="A pre-loved backpack ready for a new adventure">
+        <span class="home-image-caption">Ready for its next adventure</span>
+      </div>
+      <div class="home-image-card home-image-small home-image-camera">
+        <img src="{% static 'images/uploads/2020/09/22/camera.jpg' %}" alt="A camera listed by a local seller">
+      </div>
+      <div class="home-image-card home-image-small home-image-tent">
+        <img src="{% static 'images/uploads/2020/09/23/tent.jpeg' %}" alt="Camping gear available nearby">
+      </div>
+      <div class="home-art-note"><strong>Good for you.</strong><br>Better for the planet.</div>
+    </div>
+  </section>
+
+  <section class="home-category-section">
+    <div class="home-section-heading">
+      <div><span class="home-kicker">Explore</span><h2>Find your next favourite</h2></div>
+      <a class="home-text-link" href="{% url 'ads-listing' %}">All categories <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="home-category-grid">
+      {% for category in category_listing %}
+      <a class="home-category-card" href="{% url 'category-archive' category.slug %}">
+        <span class="home-category-visual">
+          {% if category.category_image %}<img src="{{ category.category_image.url }}" alt="">
+          {% elif category.icon_class %}<i class="{{ category.icon_class }}" aria-hidden="true"></i>
+          {% else %}<span>{{ category.category_name|slice:":1"|upper }}</span>{% endif %}
+        </span>
+        <span class="home-category-count">{{ category.total_ads }} listing{{ category.total_ads|pluralize }}</span>
+        <strong>{{ category.category_name }}</strong>
+        <span class="home-category-arrow" aria-hidden="true">&rarr;</span>
+      </a>
+      {% empty %}
+      <div class="home-empty-category">
+        Categories are being added. <a href="{% url 'ads-listing' %}">Browse all listings</a>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if featured_ads %}
+  <section class="home-listing-section">
+    <div class="home-section-heading">
+      <div><span class="home-kicker">Hand-picked</span><h2>Featured finds</h2></div>
+      <a class="home-text-link" href="{% url 'ads-listing' %}">See everything <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="home-listing-grid">
+      {% for ad in featured_ads %}
+      <article class="home-listing-card">
+        <a class="home-listing-photo" href="{% url 'ads-detail' ad.pk %}">
+          {% for image in ad.adsimages_set.all %}{% if forloop.first %}
+          <img src="{{ image.image.url }}" alt="{{ ad.title }}" onerror="this.onerror=null;this.src='{% static 'images/uploads/2020/09/22/backpack.jpg' %}'">
+          {% endif %}{% empty %}
+          <img src="{% static 'images/uploads/2020/09/22/backpack.jpg' %}" alt="Pre-loved item">
+          {% endfor %}
+          <span class="home-featured-tag">Featured</span>
+        </a>
+        <div class="home-listing-info">
+          {% if ad.category %}<a class="home-listing-category" href="{% url 'category-archive' ad.category.slug %}">{{ ad.category.category_name }}</a>{% endif %}
+          <h3><a href="{% url 'ads-detail' ad.pk %}">{{ ad.title }}</a></h3>
+          <p class="home-listing-location">{{ ad.city|default:"Local pickup" }}{% if ad.state %}, {{ ad.state }}{% endif %}</p>
+          <div class="home-listing-bottom"><strong>₹{{ ad.price }}</strong><span>{{ ad.condition }}</span></div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="home-listing-section home-live-section">
+    <div class="home-section-heading">
+      <div><span class="home-kicker"><span class="home-live-dot"></span> Live marketplace feed</span><h2>Just listed nearby</h2></div>
+      <a class="home-text-link" href="{% url 'ads-listing' %}">Browse all listings <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="home-listing-grid" id="home-live-grid" data-live-url="{% url 'api-live-feed' %}" data-cursor="{{ live_cursor }}">
+      {% for ad in recent_ads %}
+      <article class="home-listing-card" data-ad-id="{{ ad.pk }}">
+        <a class="home-listing-photo" href="{% url 'ads-detail' ad.pk %}">
+          {% for image in ad.adsimages_set.all %}{% if forloop.first %}
+          <img src="{{ image.image.url }}" alt="{{ ad.title }}" onerror="this.onerror=null;this.src='{% static 'images/uploads/2020/09/22/backpack.jpg' %}'">
+          {% endif %}{% empty %}
+          <img src="{% static 'images/uploads/2020/09/22/backpack.jpg' %}" alt="Pre-loved item">
+          {% endfor %}
+        </a>
+        <div class="home-listing-info">
+          {% if ad.category %}<a class="home-listing-category" href="{% url 'category-archive' ad.category.slug %}">{{ ad.category.category_name }}</a>{% endif %}
+          <h3><a href="{% url 'ads-detail' ad.pk %}">{{ ad.title }}</a></h3>
+          <p class="home-listing-location">{{ ad.city|default:"Local pickup" }}{% if ad.state %}, {{ ad.state }}{% endif %}</p>
+          <div class="home-listing-bottom"><strong>₹{{ ad.price }}</strong><span>{{ ad.condition }}</span></div>
+        </div>
+      </article>
+      {% empty %}
+      <div class="home-empty-listings">
+        <div class="home-empty-icon" aria-hidden="true">+</div>
+        <h3>Be the first to share something</h3>
+        <p>Post a listing and help someone find exactly what they need.</p>
+        <a class="home-primary-button" href="{% url 'post-ads' %}">Create a listing</a>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="home-live-toast" id="home-live-toast" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="home-sell-banner">
+    <div><span class="home-kicker">Make room for what’s next</span><h2>Someone nearby is looking for what you no longer need.</h2></div>
+    <a class="home-primary-button" href="{% url 'post-ads' %}">Sell an item <span aria-hidden="true">&rarr;</span></a>
+  </section>
+</div>
+
+<script>
+  (function () {
+    const grid = document.getElementById('home-live-grid');
+    const toast = document.getElementById('home-live-toast');
+    if (!grid) return;
+    let cursor = Number(grid.dataset.cursor || 0);
+    let requestPending = false;
+
+    function makeCard(item) {
+      const article = document.createElement('article');
+      article.className = 'home-listing-card home-card-arrive';
+      article.dataset.adId = item.id;
+
+      const link = document.createElement('a');
+      link.className = 'home-listing-photo';
+      link.href = item.url;
+      const image = document.createElement('img');
+      image.src = item.image || "{% static 'images/uploads/2020/09/22/backpack.jpg' %}";
+      image.alt = item.title;
+      image.onerror = function () {
+        this.onerror = null;
+        this.src = "{% static 'images/uploads/2020/09/22/backpack.jpg' %}";
+      };
+      link.appendChild(image);
+
+      const content = document.createElement('div');
+      content.className = 'home-listing-info';
+      if (item.category_url) {
+        const category = document.createElement('a');
+        category.className = 'home-listing-category';
+        category.href = item.category_url;
+        category.textContent = item.category;
+        content.appendChild(category);
+      }
+      const heading = document.createElement('h3');
+      const titleLink = document.createElement('a');
+      titleLink.href = item.url;
+      titleLink.textContent = item.title;
+      heading.appendChild(titleLink);
+      const location = document.createElement('p');
+      location.className = 'home-listing-location';
+      location.textContent = [item.city, item.state].filter(Boolean).join(', ') || 'Local pickup';
+      const bottom = document.createElement('div');
+      bottom.className = 'home-listing-bottom';
+      const price = document.createElement('strong');
+      price.textContent = '₹' + item.price;
+      const condition = document.createElement('span');
+      condition.textContent = item.condition;
+      bottom.append(price, condition);
+      content.append(heading, location, bottom);
+      article.append(link, content);
+      return article;
+    }
+
+    async function checkForListings() {
+      if (document.hidden || requestPending) return;
+      requestPending = true;
+      try {
+        const response = await fetch(grid.dataset.liveUrl + '?after_id=' + cursor, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!response.ok) throw new Error('Live feed returned HTTP ' + response.status);
+        const data = await response.json();
+        if (Array.isArray(data.items) && data.items.length) {
+          [...data.items].reverse().forEach(function (item) {
+            if (!grid.querySelector('[data-ad-id="' + item.id + '"]')) grid.prepend(makeCard(item));
+          });
+          cursor = Math.max(cursor, Number(data.cursor || cursor));
+          grid.dataset.cursor = cursor;
+          toast.textContent = data.items.length + ' new listing' + (data.items.length === 1 ? '' : 's') + ' just arrived.';
+          window.setTimeout(function () { toast.textContent = ''; }, 4500);
+        } else {
+          cursor = Math.max(cursor, Number(data.cursor || cursor));
+        }
+      } catch (error) {
+        console.error('Unable to refresh the live marketplace feed.', error);
+      } finally {
+        requestPending = false;
+      }
+    }
+
+    window.setInterval(checkForListings, 2000);
+    document.addEventListener('visibilitychange', checkForListings);
+  }());
+</script>
+{% endblock content %}

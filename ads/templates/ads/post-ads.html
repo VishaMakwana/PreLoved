@@ -1,0 +1,1608 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<!-- Custom Styles for Unified Ad Post Form -->
+<style>
+  .post-ad-container {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .form-section-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .form-section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+  }
+  .section-badge-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #eef2ff;
+    color: #4f46e5;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .form-section-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+  }
+  .form-section-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin: 2px 0 0 0;
+  }
+  .field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .field-label .req {
+    color: #ef4444;
+    margin-left: 3px;
+    font-weight: 700;
+  }
+  .field-label .opt {
+    color: #94a3b8;
+    font-weight: 400;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .custom-input, .custom-select, .custom-textarea {
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #1e293b;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    background-color: #ffffff;
+  }
+  .custom-input:focus, .custom-select:focus, .custom-textarea:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    outline: none;
+  }
+  .input-prefix-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-prefix-group .prefix-symbol {
+    position: absolute;
+    left: 14px;
+    font-weight: 700;
+    color: #64748b;
+    font-size: 16px;
+    pointer-events: none;
+  }
+  .input-prefix-group input {
+    padding-left: 36px;
+  }
+  .badge-otp-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  /* Condition selector pills */
+  .condition-selector {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .condition-pill {
+    cursor: pointer;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+    background: #f8fafc;
+    transition: all 0.2s;
+  }
+  .condition-pill:hover {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+  }
+  .condition-pill.active {
+    border-color: #4f46e5;
+    background: #eef2ff;
+    color: #4f46e5;
+    font-weight: 700;
+  }
+  .condition-pill .cond-title {
+    font-size: 13px;
+    font-weight: 600;
+    display: block;
+  }
+  .condition-pill .cond-desc {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .condition-pill.active .cond-desc {
+    color: #6366f1;
+  }
+
+  /* Photo Upload Dropzone */
+  .photo-dropzone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 14px;
+    background: #f8fafc;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .photo-dropzone:hover, .photo-dropzone.dragover {
+    border-color: #4f46e5;
+    background: #eef2ff;
+  }
+  .photo-dropzone i {
+    font-size: 40px;
+    color: #6366f1;
+    margin-bottom: 8px;
+  }
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .preview-card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    border: 1px solid #e2e8f0;
+    background: #f1f5f9;
+  }
+  .preview-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .preview-card .remove-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(15, 23, 42, 0.75);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .preview-card .remove-btn:hover {
+    background: #ef4444;
+  }
+  .preview-card .badge-cover {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    background: rgba(79, 70, 229, 0.9);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .photo-counter-badge {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4f46e5;
+    background: #eef2ff;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* Dynamic Fields Section */
+  .category-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+  .category-badge-pill i {
+    color: #4f46e5;
+  }
+  .feature-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+  .feature-checkbox-label:hover {
+    background: #f1f5f9;
+  }
+  .feature-checkbox-label input[type="checkbox"] {
+    accent-color: #4f46e5;
+    width: 16px;
+    height: 16px;
+  }
+  .feature-checkbox-label.checked {
+    background: #eef2ff;
+    border-color: #a5b4fc;
+    color: #4338ca;
+    font-weight: 600;
+  }
+
+  /* Optional accordion trigger */
+  .accordion-toggle-btn {
+    background: none;
+    border: none;
+    color: #4f46e5;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  /* Submit Button & Alerts */
+  .submit-post-btn {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 14px 36px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .submit-post-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+    color: #ffffff;
+  }
+  .submit-post-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    .condition-selector {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .form-section-card {
+      padding: 20px 16px;
+    }
+  }
+</style>
+
+<!-- Page Header Start -->
+<div class="page-header" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 36px 0;">
+  <div class="container text-center">
+    <span class="badge badge-primary px-3 py-1 mb-2" style="background: #4f46e5; font-size: 12px; border-radius: 20px;">⚡ PRELOVED MARKETPLACE</span>
+    <h2 class="product-title" style="color: #ffffff; font-weight: 800; font-size: 30px; margin-bottom: 6px;">Post Your Classified Ad</h2>
+    <p style="color: #cbd5e1; font-size: 14px; margin: 0;">Fill in the details below to reach verified buyers across your city and all India.</p>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Start Content -->
+<div id="content" class="section-padding" style="background-color: #f8fafc; padding: 48px 0;">
+  <div class="container">
+    <div class="post-ad-container">
+      {% if request.user.is_authenticated %}
+      <form id="unified-ad-form" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- STEP 1: CATEGORY SELECTION -->
+        <div class="form-section-card">
+          <div class="form-section-header">
+            <span class="section-badge-num">1</span>
+            <div>
+              <h3 class="form-section-title">Select Category & Sub-Category</h3>
+              <p class="form-section-subtitle">Choose where your item belongs so buyers can discover it easily</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="field-label">Main Category <span class="req">*</span></label>
+              <select id="main_category" class="custom-select" required>
+                <option value="" disabled selected>-- Choose Category --</option>
+                {% for cat in categories %}
+                  <option value="{{ cat.category_name }}" data-id="{{ cat.id }}">{{ cat.category_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="field-label">Sub-Category <span class="req">*</span></label>
+              <select id="sub_category" name="category" class="custom-select" disabled required>
+                <option value="" disabled selected>-- First Select Main Category --</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="active-category-indicator" class="mt-2" style="display: none;">
+            <span class="category-badge-pill">
+              <i class="lni-tag"></i>
+              <span id="category-path-display">Cars > Hatchback</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- STEP 2: CATEGORY SPECIFICATIONS (DYNAMIC FIELDS) -->
+        <div id="category-specs-card" class="form-section-card" style="display: none;">
+          <div class="form-section-header">
+            <span class="section-badge-num">2</span>
+            <div>
+              <h3 class="form-section-title" id="category-specs-title">Category Specifications</h3>
+              <p class="form-section-subtitle">Specific details for this category help buyers verify your product quickly</p>
+            </div>
+          </div>
+
+          <!-- Injected dynamically by JavaScript based on category selection -->
+          <div id="dynamic-fields-container"></div>
+        </div>
+
+        <!-- STEP 3: AD OVERVIEW & COMMON DETAILS -->
+        <div class="form-section-card">
+          <div class="form-section-header">
+            <span class="section-badge-num">3</span>
+            <div>
+              <h3 class="form-section-title">Common Ad Details</h3>
+              <p class="form-section-subtitle">Key product information, pricing, condition, and location</p>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="field-label">Ad Title <span class="req">*</span> <span class="opt">e.g. Maruti Swift VXi 2018 or iPhone 13 128GB</span></label>
+            <input type="text" id="title" name="title" class="custom-input" placeholder="Enter a descriptive title with brand, model & year" required>
+            <div id="titlemsg" class="text-danger small mt-1"></div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="field-label">Price (₹) <span class="req">*</span></label>
+              <div class="input-prefix-group">
+                <span class="prefix-symbol">₹</span>
+                <input type="number" id="price" name="price" class="custom-input" placeholder="e.g. 450000" min="0" step="any" required>
+              </div>
+              <div id="pricemsg" class="text-danger small mt-1"></div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="field-label">Brand / Manufacturer <span class="opt">Optional</span></label>
+              <input type="text" id="brand" name="brand" class="custom-input" placeholder="e.g. Maruti Suzuki, Apple, Samsung, Sony">
+            </div>
+          </div>
+
+          <!-- Condition Selector -->
+          <div class="mb-3">
+            <label class="field-label">Item Condition <span class="req">*</span></label>
+            <input type="hidden" id="condition" name="condition" value="Good">
+            <div class="condition-selector">
+              <div class="condition-pill" data-condition="Like New">
+                <span class="cond-title">✨ Like New</span>
+                <span class="cond-desc">Barely used, zero scratches</span>
+              </div>
+              <div class="condition-pill active" data-condition="Good">
+                <span class="cond-title">👍 Good</span>
+                <span class="cond-desc">Minor normal signs of use</span>
+              </div>
+              <div class="condition-pill" data-condition="Fair">
+                <span class="cond-title">👌 Fair</span>
+                <span class="cond-desc">Noticeable wear, fully works</span>
+              </div>
+              <div class="condition-pill" data-condition="Needs Repair">
+                <span class="cond-title">🔧 Needs Repair</span>
+                <span class="cond-desc">Has flaws or needs fix</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="field-label">Detailed Description <span class="req">*</span></label>
+            <textarea id="description" name="description" rows="5" class="custom-textarea" placeholder="Describe the item's features, included accessories, usage history, and condition in detail..." required></textarea>
+            <div id="descriptionmsg" class="text-danger small mt-1"></div>
+          </div>
+
+          <!-- Location & Seller Info -->
+          <h5 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 20px 0 14px 0; border-top: 1px dashed #e2e8f0; padding-top: 18px;">
+            <i class="lni-map-marker text-primary mr-1"></i> Location & Seller Verification
+          </h5>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="field-label">State <span class="req">*</span></label>
+              <select id="state" name="state" class="custom-select" required>
+                <option value="" disabled selected>-- Select State --</option>
+                {% if states %}
+                  {% for s in states %}
+                  <option value="{{ s.state_name }}">{{ s.state_name }}</option>
+                  {% endfor %}
+                {% else %}
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                {% endif %}
+              </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="field-label">City <span class="req">*</span></label>
+              <input type="text" id="city" name="city" class="custom-input" placeholder="e.g. Ahmedabad, Mumbai, Bengaluru" required>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="field-label">Area / Locality <span class="req">*</span></label>
+              <input type="text" id="area" name="area" class="custom-input" placeholder="e.g. Satellite, Koramangala, Andheri" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="field-label">Seller Name <span class="req">*</span></label>
+              <input type="text" id="seller_name" name="seller_name" class="custom-input" value="{{ request.user.get_full_name|default:request.user.username }}" placeholder="Your full name" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="field-label">
+                Phone Number <span class="req">*</span>
+                <span class="badge-otp-verified"><i class="lni-shield"></i> OTP Verified</span>
+              </label>
+              <input type="tel" id="phone" name="phone" class="custom-input" placeholder="e.g. 9876543210" required>
+              <div id="phonemsg" class="text-danger small mt-1"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4: OPTIONAL COMMON AD DETAILS (COLLAPSIBLE) -->
+        <div class="form-section-card">
+          <div class="d-flex align-items-center justify-content-between" style="cursor: pointer;" data-toggle="collapse" data-target="#optional-details-panel">
+            <div class="d-flex align-items-center gap-3">
+              <span class="section-badge-num">4</span>
+              <div>
+                <h3 class="form-section-title">Additional Ad Information <span class="badge badge-secondary" style="font-size: 11px; font-weight: normal; margin-left: 6px;">Optional</span></h3>
+                <p class="form-section-subtitle">Negotiation, warranty, video link, delivery, and exchange preferences</p>
+              </div>
+            </div>
+            <i class="lni-chevron-down text-primary" style="font-size: 18px;"></i>
+          </div>
+
+          <div id="optional-details-panel" class="collapse show mt-4 pt-3" style="border-top: 1px solid #f1f5f9;">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="field-label">Price Negotiable? <span class="opt">Optional</span></label>
+                <select id="is_negotiable" name="is_negotiable" class="custom-select">
+                  <option value="false">No (Fixed Price)</option>
+                  <option value="true">Yes (Negotiable)</option>
+                </select>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="field-label">Purchase Year or Age <span class="opt">Optional</span></label>
+                <input type="text" id="purchase_year" name="purchase_year" class="custom-input" placeholder="e.g. 2021 or 2 years old">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="field-label">Exchange Accepted? <span class="opt">Optional</span></label>
+                <select id="exchange_accepted" name="exchange_accepted" class="custom-select">
+                  <option value="false">No (Cash/Direct Buy only)</option>
+                  <option value="true">Yes (Open to exchange)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="field-label">Bill / Warranty Available <span class="opt">Optional</span></label>
+                <input type="text" id="bill_or_warranty" name="bill_or_warranty" class="custom-input" placeholder="e.g. Original invoice & 6 months brand warranty">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="field-label">Reason for Selling <span class="opt">Optional</span></label>
+                <input type="text" id="reason_for_selling" name="reason_for_selling" class="custom-input" placeholder="e.g. Upgrading to new model / Relocating">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="field-label">Preferred Contact Mode <span class="opt">Optional</span></label>
+                <select id="preferred_contact" name="preferred_contact" class="custom-select">
+                  <option value="Any">Any (Call / WhatsApp / Chat)</option>
+                  <option value="Call">Phone Call Preferred</option>
+                  <option value="WhatsApp">WhatsApp Message Only</option>
+                  <option value="Chat">In-App Chat Only</option>
+                </select>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="field-label">Pickup or Delivery <span class="opt">Optional</span></label>
+                <select id="delivery_available" name="delivery_available" class="custom-select">
+                  <option value="Pickup Only">Buyer Pickup Only</option>
+                  <option value="Delivery Available">Home Delivery Available</option>
+                  <option value="Both">Both Pickup & Delivery Available</option>
+                </select>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label class="field-label">Product Video URL <span class="opt">Optional</span></label>
+                <input type="url" id="video" name="video" class="custom-input" placeholder="https://youtube.com/watch?v=...">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 5: PHOTO UPLOAD (MIN 2, MAX 10) -->
+        <div class="form-section-card">
+          <div class="form-section-header">
+            <span class="section-badge-num">5</span>
+            <div class="d-flex justify-content-between align-items-center w-100">
+              <div>
+                <h3 class="form-section-title">Upload Product Photos <span class="req">*</span></h3>
+                <p class="form-section-subtitle">Upload genuine photos from different angles (Minimum 2, Maximum 10 photos)</p>
+              </div>
+              <span id="photo-counter" class="photo-counter-badge">0 / 10 Photos Added</span>
+            </div>
+          </div>
+
+          <div id="dropzone" class="photo-dropzone">
+            <i class="lni-cloud-upload"></i>
+            <h5 style="font-weight: 700; color: #1e293b; margin-bottom: 4px;">Click or Drag & Drop Photos Here</h5>
+            <p style="color: #64748b; font-size: 13px; margin-bottom: 12px;">Supports JPG, JPEG, PNG, WEBP (Max 5MB each)</p>
+            <button type="button" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-weight: 600;" onclick="document.getElementById('photo-input').click();">
+              <i class="lni-plus mr-1"></i> Browse Files
+            </button>
+            <input type="file" id="photo-input" multiple accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
+          </div>
+
+          <div id="photomsg" class="text-danger small mt-2"></div>
+
+          <!-- Thumbnail previews grid -->
+          <div id="photos-preview-grid" class="preview-grid"></div>
+        </div>
+
+        <!-- SUBMIT SECTION -->
+        <div class="text-center mt-4 mb-5">
+          <div id="form-alert-container" class="mb-3"></div>
+
+          <button type="button" id="submitAdBtn" class="submit-post-btn">
+            <i class="lni-check-mark-circle mr-1"></i> Post Ad Now
+          </button>
+          <p class="text-muted small mt-2">By posting this ad, you agree to PreLoved Terms of Service and Community Rules.</p>
+        </div>
+
+      </form>
+      {% else %}
+      <div class="form-section-card text-center py-5">
+        <i class="lni-lock text-primary" style="font-size: 48px;"></i>
+        <h3 class="mt-3">Please Sign In to Post an Ad</h3>
+        <p class="text-muted">You need an active PreLoved account to post ads and manage buyer inquiries.</p>
+        <a href="{% url 'login' %}" class="btn btn-common mt-2 px-4 py-2">Log In to PreLoved</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<!-- End Content -->
+
+<!-- Dynamic Categories & Field Definitions JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // 1. Category Tree from server
+  const categoriesData = {{ categories_json|safe }};
+
+  // 2. Comprehensive Category Fields Specifications (Part 2)
+  const CATEGORY_SPECS = {
+    // 🚗 1. CARS
+    "Cars": {
+      "default": {
+        "required": [
+          { name: "Brand", label: "Car Brand", type: "text", placeholder: "e.g. Maruti Suzuki, Hyundai, Honda, Tata" },
+          { name: "Model", label: "Car Model", type: "text", placeholder: "e.g. Swift, City, Creta, Nexon" },
+          { name: "Variant", label: "Variant", type: "text", placeholder: "e.g. VXi, ZXi, EX, SX(O)" },
+          { name: "Year", label: "Registration Year", type: "select", options: getYearOptions(2000) },
+          { name: "Fuel Type", label: "Fuel Type", type: "select", options: ["Petrol", "Diesel", "CNG", "Electric", "Hybrid"] },
+          { name: "Transmission", label: "Transmission", type: "select", options: ["Manual", "Automatic"] },
+          { name: "KM Driven", label: "KM Driven", type: "number", placeholder: "e.g. 45000" },
+          { name: "Number of Owners", label: "Number of Owners", type: "select", options: ["1st Owner", "2nd Owner", "3rd Owner", "4th+ Owner"] }
+        ],
+        "optional": [
+          { name: "Registration State", label: "Registration State / RTO", type: "text", placeholder: "e.g. GJ-01 (Ahmedabad)" },
+          { name: "Insurance Type & Validity", label: "Insurance Status", type: "text", placeholder: "e.g. Comprehensive valid till Dec 2026" },
+          { name: "Color", label: "Exterior Color", type: "text", placeholder: "e.g. Pearl White" },
+          { name: "Seats", label: "Seating Capacity", type: "select", options: ["4 Seater", "5 Seater", "6 Seater", "7 Seater", "8 Seater"] },
+          { name: "Accident History", label: "Accident History", type: "select", options: ["No Accidents (Clean)", "Minor Scratches / Dents", "Repaired & Certified"] },
+          { name: "Service History", label: "Service History", type: "select", options: ["Full Authorized Company Service", "Partially Authorized", "Local Service"] },
+          { name: "Number of Keys", label: "Number of Keys", type: "select", options: ["2 Original Keys", "1 Key Only"] },
+          { name: "Tyre Condition", label: "Tyre Condition", type: "select", options: ["Brand New Tyres", "80%+ Tread Remaining", "50% Tread", "Needs Replacement Soon"] },
+          { name: "RC Available", label: "Original RC Available", type: "select", options: ["Yes (Original RC Available)", "Duplicate RC", "In Process"] },
+          { name: "PUC Valid", label: "PUC Certificate Valid", type: "select", options: ["Yes (Valid)", "Expired"] },
+          { name: "Loan Status", label: "Loan / Hypothecation", type: "select", options: ["No Loan (Clear Title)", "Active Loan", "Loan Closed (NOC Ready)"] }
+        ],
+        "features": ["Air Conditioning (AC)", "Airbags", "ABS Braking", "Power Steering", "Power Windows", "Sunroof", "Touchscreen Infotainment", "Reverse Parking Camera", "Parking Sensors", "Alloy Wheels", "Cruise Control", "Fog Lights"]
+      },
+      "Electric Cars": {
+        "required": [
+          { name: "Brand", label: "Car Brand", type: "text", placeholder: "e.g. Tata, MG, Hyundai, BYD, Tesla" },
+          { name: "Model", label: "Car Model", type: "text", placeholder: "e.g. Nexon EV, Tiago EV, ZS EV" },
+          { name: "Variant", label: "Variant", type: "text", placeholder: "e.g. Empowered Plus LR" },
+          { name: "Year", label: "Registration Year", type: "select", options: getYearOptions(2015) },
+          { name: "Transmission", label: "Transmission", type: "select", options: ["Automatic"] },
+          { name: "KM Driven", label: "KM Driven", type: "number", placeholder: "e.g. 28000" },
+          { name: "Battery Capacity (kWh)", label: "Battery Capacity (kWh)", type: "text", placeholder: "e.g. 40.5 kWh" },
+          { name: "Real World Range (km)", label: "Real Range (km per charge)", type: "number", placeholder: "e.g. 320" },
+          { name: "Number of Owners", label: "Number of Owners", type: "select", options: ["1st Owner", "2nd Owner", "3rd Owner"] }
+        ],
+        "optional": [
+          { name: "Battery Health %", label: "Battery Health / SoH (%)", type: "text", placeholder: "e.g. 96%" },
+          { name: "Battery Warranty", label: "Battery Warranty Details", type: "text", placeholder: "e.g. 8 Years / 1,60,000 km warranty active" },
+          { name: "Charger Included", label: "Home Fast Charger Included", type: "select", options: ["Yes (7.2kW Fast Charger included)", "Yes (15A Standard Charger only)", "No Charger Included"] },
+          { name: "Registration State", label: "Registration State", type: "text", placeholder: "e.g. MH-02" },
+          { name: "Insurance Type & Validity", label: "Insurance Status", type: "text", placeholder: "e.g. Zero Dep valid till 2027" },
+          { name: "Color", label: "Color", type: "text", placeholder: "e.g. Teal Blue" }
+        ],
+        "features": ["Fast DC Charging Support", "Connected Car App", "Sunroof", "Ventilated Seats", "360-Degree Camera", "Regenerative Braking", "Cruise Control"]
+      },
+      "Car Spare Parts": {
+        "required": [
+          { name: "Part Name", label: "Spare Part Name", type: "text", placeholder: "e.g. LED Headlight Assembly, Front Bumper, Alternator" },
+          { name: "Compatible Brand & Model", label: "Compatible Vehicle", type: "text", placeholder: "e.g. Maruti Swift (2018-2023) or Universal" },
+          { name: "Part Condition", label: "Part Condition", type: "select", options: ["Brand New", "Used (Tested & Working)", "Refurbished"] }
+        ],
+        "optional": [
+          { name: "Part Number", label: "OEM / Part Number", type: "text", placeholder: "e.g. 35100-M74G00" },
+          { name: "Original or Aftermarket", label: "Part Authenticity", type: "select", options: ["100% Genuine OEM Original", "Certified Aftermarket", "Imported"] },
+          { name: "Warranty", label: "Warranty (if any)", type: "text", placeholder: "e.g. 3 Months Testing Warranty" },
+          { name: "Quantity", label: "Quantity Available", type: "number", placeholder: "1" }
+        ]
+      },
+      "Car Accessories": {
+        "required": [
+          { name: "Accessory Type", label: "Accessory Type", type: "text", placeholder: "e.g. 7D Floor Mats, Android Touchscreen Player, Dashcam, Seat Covers" },
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Blaupunkt, 70mai, Autofurnish, Pioneer" },
+          { name: "Condition", label: "Condition", type: "select", options: ["Brand New (Sealed)", "Like New", "Gently Used"] }
+        ],
+        "optional": [
+          { name: "Compatible Models", label: "Compatible Car Models", type: "text", placeholder: "e.g. All SUVs / Universal fit" },
+          { name: "Size / Dimensions", label: "Size / Dimensions", type: "text", placeholder: "e.g. 9 inch screen / Custom fit" },
+          { name: "Color", label: "Color", type: "text", placeholder: "e.g. Black with Red Stitching" },
+          { name: "Quantity", label: "Quantity", type: "number", placeholder: "1" }
+        ]
+      }
+    },
+
+    // 🏍️ 2. BIKES
+    "Bikes": {
+      "default": {
+        "required": [
+          { name: "Brand", label: "Bike Brand", type: "text", placeholder: "e.g. Royal Enfield, Hero, Honda, Bajaj, Yamaha, TVS, KTM" },
+          { name: "Model", label: "Model", type: "text", placeholder: "e.g. Classic 350, Activa 6G, Pulsar 150, FZ-S" },
+          { name: "Year", label: "Model Year", type: "select", options: getYearOptions(2002) },
+          { name: "KM Driven", label: "KM Driven", type: "number", placeholder: "e.g. 24000" },
+          { name: "Number of Owners", label: "Number of Owners", type: "select", options: ["1st Owner", "2nd Owner", "3rd Owner", "4th+ Owner"] }
+        ],
+        "optional": [
+          { name: "Engine CC", label: "Engine Displacement (cc)", type: "text", placeholder: "e.g. 110cc, 125cc, 150cc, 350cc" },
+          { name: "Registration State", label: "Registration State / RTO", type: "text", placeholder: "e.g. KA-03 (Bengaluru)" },
+          { name: "Insurance Validity", label: "Insurance Validity", type: "text", placeholder: "e.g. Valid till Oct 2026" },
+          { name: "Color", label: "Color", type: "text", placeholder: "e.g. Stealth Black" },
+          { name: "Brake Type", label: "Brake Type", type: "select", options: ["Front Disc & Rear Drum", "Dual Disc (Front + Rear)", "Both Drum", "Dual Channel ABS"] },
+          { name: "Self Start", label: "Electric Self Start", type: "select", options: ["Yes (Self + Kick)", "Self Start Only", "Kick Start Only"] },
+          { name: "Accident History", label: "Accident History", type: "select", options: ["Never in any accident", "Minor fall / scratch only", "Repaired"] },
+          { name: "Service History", label: "Service History", type: "select", options: ["Authorized Service Records Available", "Local Workshop Serviced"] },
+          { name: "Number of Keys", label: "Keys", type: "select", options: ["2 Original Keys", "1 Key Only"] },
+          { name: "RC Available", label: "Original RC Available", type: "select", options: ["Yes", "Duplicate", "In Process"] },
+          { name: "PUC Valid", label: "PUC Certificate Valid", type: "select", options: ["Yes (Valid)", "Expired"] },
+          { name: "Accessories Included", label: "Accessories Included", type: "text", placeholder: "e.g. Leg guard, helmet, ladies footrest, mobile holder" }
+        ]
+      },
+      "Bicycles": {
+        "required": [
+          { name: "Type", label: "Bicycle Type", type: "select", options: ["Mountain Bike (MTB)", "Hybrid / City Cycle", "Road Bike", "Geared Cycle", "Non-Geared / Single Speed", "Kids Cycle"] },
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Hero, Firefox, Trek, Btwin / Decathlon, Hercules, Montra" },
+          { name: "Age", label: "Age of Cycle", type: "text", placeholder: "e.g. 1 year old / 6 months" }
+        ],
+        "optional": [
+          { name: "Frame Size", label: "Frame Size", type: "text", placeholder: "e.g. Medium (18 inch) / Alloy Frame" },
+          { name: "Wheel Size", label: "Wheel Size", type: "select", options: ["24 inch", "26 inch", "27.5 inch", "29 inch", "700c"] },
+          { name: "Number of Gears", label: "Gears", type: "select", options: ["Single Speed (No Gears)", "7 Speed (Shimano)", "21 Speed (3x7)", "24 Speed (3x8)"] },
+          { name: "Brake Type", label: "Brake Type", type: "select", options: ["Front & Rear Disc Brakes", "V-Brakes / Rim Brakes"] },
+          { name: "Suspension", label: "Suspension", type: "select", options: ["Front Suspension (Lockout)", "Front Suspension", "Dual / Full Suspension", "Rigid (No Suspension)"] },
+          { name: "Color", label: "Color", type: "text", placeholder: "e.g. Matte Black / Neon Orange" },
+          { name: "Accessories Included", label: "Included Accessories", type: "text", placeholder: "e.g. Heavy wire lock, LED front/back lights, mudguards, bottle cage" }
+        ]
+      },
+      "Electric Bikes & Scooters": {
+        "required": [
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Ola Electric, Ather, TVS iQube, Revolt, Hero Electric" },
+          { name: "Model", label: "Model", type: "text", placeholder: "e.g. S1 Pro Gen 2, 450X, RV400" },
+          { name: "Year", label: "Purchase Year", type: "select", options: getYearOptions(2018) },
+          { name: "KM Driven", label: "KM Driven", type: "number", placeholder: "e.g. 12000" },
+          { name: "Battery Capacity", label: "Battery Capacity", type: "text", placeholder: "e.g. 3.7 kWh / 4 kWh" },
+          { name: "Range per Charge", label: "Real Range (km per charge)", type: "number", placeholder: "e.g. 120" }
+        ],
+        "optional": [
+          { name: "Battery Health", label: "Battery Health Status", type: "text", placeholder: "e.g. 95% Battery Health" },
+          { name: "Battery Warranty", label: "Battery Warranty Remaining", type: "text", placeholder: "e.g. 3 years official warranty left" },
+          { name: "Charger Included", label: "Charger Included", type: "select", options: ["Yes (Original Fast Charger Included)", "No Charger"] },
+          { name: "Top Speed", label: "Top Speed (km/h)", type: "text", placeholder: "e.g. 90 km/h" },
+          { name: "Number of Owners", label: "Number of Owners", type: "select", options: ["1st Owner", "2nd Owner"] },
+          { name: "Registration Status", label: "RTO Registration", type: "select", options: ["Registered (Yellow/Green Plate with RC)", "Non-RTO Low Speed Model"] }
+        ]
+      },
+      "Helmets & Riding Gear": {
+        "required": [
+          { name: "Type", label: "Gear Type", type: "select", options: ["Full Face Helmet", "Modular / Flip-up Helmet", "Riding Jacket", "Riding Gloves", "Knee & Elbow Guards", "Riding Boots"] },
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Axor, MT Helmets, Steelbird, Vega, Royal Enfield, Alpinestars" },
+          { name: "Size", label: "Size", type: "select", options: ["S (Small)", "M (Medium)", "L (Large)", "XL (Extra Large)", "XXL"] }
+        ],
+        "optional": [
+          { name: "Certification", label: "Safety Certification", type: "select", options: ["DOT & ECE 22.06 Certified", "ECE Certified", "ISI Certified Only", "Non-certified"] },
+          { name: "Color", label: "Color / Graphic", type: "text", placeholder: "e.g. Matte Black Graphics with Pinlock visor" },
+          { name: "Material", label: "Material", type: "text", placeholder: "e.g. Polycarbonate / Cordura Fabric / Leather" },
+          { name: "Quantity", label: "Quantity", type: "number", placeholder: "1" }
+        ]
+      }
+    },
+
+    // 🚚 3. COMMERCIAL VEHICLES
+    "Commercial Vehicles": {
+      "default": {
+        "required": [
+          { name: "Vehicle Type", label: "Vehicle Type", type: "select", options: ["Truck (Heavy Goods)", "Mini Truck / Tempo (Tata Ace, Bolero Maxi)", "Bus / Staff Bus", "Auto Rickshaw (Passenger)", "E-Rickshaw", "Tractor", "Tipper / Dumper"] },
+          { name: "Brand", label: "Brand / Make", type: "text", placeholder: "e.g. Tata Motors, Mahindra, Ashok Leyland, Eicher, Bajaj, Piaggio, John Deere" },
+          { name: "Model", label: "Model", type: "text", placeholder: "e.g. Tata Ace Gold, Bolero Pickup, 1616, 2518" },
+          { name: "Year", label: "Manufacturing Year", type: "select", options: getYearOptions(2005) },
+          { name: "Fuel Type", label: "Fuel Type", type: "select", options: ["Diesel", "CNG", "Electric", "Petrol"] },
+          { name: "KM or Hours Used", label: "KM Driven (or Engine Hours for Tractors)", type: "number", placeholder: "e.g. 75000" },
+          { name: "Number of Owners", label: "Number of Owners", type: "select", options: ["1st Owner", "2nd Owner", "3rd Owner", "4th+ Owner"] }
+        ],
+        "optional": [
+          { name: "Load Capacity (tons)", label: "Payload Capacity", type: "text", placeholder: "e.g. 1.5 Ton / 16 Ton" },
+          { name: "Body Type", label: "Body Type", type: "select", options: ["Open Body", "Closed Container", "High Deck", "Flatbed", "Tipper / Hydraulic"] },
+          { name: "Seating Capacity", label: "Seating Capacity (Buses/Autos)", type: "text", placeholder: "e.g. 3+1 (Auto) or 32 Seater (Bus)" },
+          { name: "Permit Type & Validity", label: "Permit Status", type: "text", placeholder: "e.g. All India National Permit valid till 2027" },
+          { name: "Fitness Certificate Validity", label: "Fitness Certificate Till", type: "text", placeholder: "e.g. Valid till March 2027" },
+          { name: "Insurance Validity", label: "Insurance Status", type: "text", placeholder: "e.g. Comprehensive valid" },
+          { name: "Road Tax Paid Till", label: "Road Tax Paid Status", type: "text", placeholder: "e.g. Lifetime Tax / Valid till 2028" },
+          { name: "Tyre Condition", label: "Tyres Status", type: "text", placeholder: "e.g. All 6 tyres 70%+ life remaining" },
+          { name: "RC Available", label: "Original RC Book", type: "select", options: ["Yes (Clear RC)", "In Transfer Process"] },
+          { name: "Finance NOC", label: "Finance / Hypothecation NOC", type: "select", options: ["Finance Clear (NOC Available)", "Active Loan", "Cash Purchase (No Loan)"] },
+          { name: "Tractor Specs (if applicable)", label: "Engine HP & Implements (for Tractors)", type: "text", placeholder: "e.g. 50 HP with Rotavator & Trolley" },
+          { name: "Battery Details (for E-Rickshaws)", label: "Battery Details (for E-Rickshaws)", type: "text", placeholder: "e.g. 4x 140Ah Eastman Lead Acid (6 months old)" }
+        ]
+      }
+    },
+
+    // 📱 4. MOBILES
+    "Mobiles": {
+      "default": {
+        "required": [
+          { name: "Brand", label: "Mobile Brand", type: "text", placeholder: "e.g. Apple, Samsung, OnePlus, Xiaomi, Vivo, Oppo, Realme, Google" },
+          { name: "Model", label: "Model Name", type: "text", placeholder: "e.g. iPhone 13, Galaxy S23 Ultra, OnePlus 11R" },
+          { name: "Storage", label: "Internal Storage", type: "select", options: ["32 GB", "64 GB", "128 GB", "256 GB", "512 GB", "1 TB"] },
+          { name: "RAM", label: "RAM", type: "select", options: ["3 GB", "4 GB", "6 GB", "8 GB", "12 GB", "16 GB", "Not Applicable (iPhone)"] },
+          { name: "Purchase Year", label: "Year of Purchase", type: "select", options: getYearOptions(2017) }
+        ],
+        "optional": [
+          { name: "Color", label: "Device Color", type: "text", placeholder: "e.g. Midnight Black, Starlight White" },
+          { name: "Warranty Remaining", label: "Warranty Status", type: "text", placeholder: "e.g. 4 Months Brand Warranty Remaining / Expired" },
+          { name: "Bill & Box Available", label: "Bill & Box", type: "select", options: ["Both Original Bill & Box Available", "Box Only", "Bill Only", "Device Only (No Box/Bill)"] },
+          { name: "Charger Included", label: "Original Charger Included", type: "select", options: ["Yes (Original Cable + Adapter)", "Cable Only", "No Charger Included"] },
+          { name: "Screen Condition", label: "Screen Condition", type: "select", options: ["Flawless (No Scratches, Original Display)", "Minor Hairline Scratches", "Display Changed (Working)", "Cracked Glass"] },
+          { name: "Battery Health", label: "Battery Health % (iOS/Android)", type: "text", placeholder: "e.g. 88% Maximum Capacity" },
+          { name: "Repair History", label: "Any Repair History?", type: "select", options: ["Never Repaired / All Parts Original", "Battery Replaced (Authorized)", "Screen Replaced", "Other Repairs"] },
+          { name: "Dual SIM", label: "SIM Support", type: "select", options: ["Dual Physical SIM", "Physical SIM + eSIM", "Single SIM"] },
+          { name: "5G Support", label: "Network Connectivity", type: "select", options: ["5G Enabled", "4G LTE Only"] }
+        ]
+      },
+      "Tablets": {
+        "required": [
+          { name: "Brand", label: "Tablet Brand", type: "text", placeholder: "e.g. Apple iPad, Samsung Galaxy Tab, Lenovo, Xiaomi" },
+          { name: "Model", label: "Tablet Model & Generation", type: "text", placeholder: "e.g. iPad Air 5th Gen (M1), Galaxy Tab S8" },
+          { name: "Storage", label: "Storage", type: "select", options: ["64 GB", "128 GB", "256 GB", "512 GB", "1 TB"] },
+          { name: "Connectivity", label: "Connectivity", type: "select", options: ["Wi-Fi Only", "Wi-Fi + Cellular (SIM)"] }
+        ],
+        "optional": [
+          { name: "Screen Size", label: "Display Size", type: "text", placeholder: "e.g. 10.9 inch Liquid Retina" },
+          { name: "RAM", label: "RAM", type: "select", options: ["4 GB", "6 GB", "8 GB", "16 GB"] },
+          { name: "Accessories Included", label: "Pen / Keyboard Included", type: "select", options: ["Apple Pencil / S-Pen Included", "Smart Keyboard Included", "Both Stylus & Keyboard", "Tablet Only"] },
+          { name: "Bill & Box Available", label: "Bill & Box", type: "select", options: ["Yes (Bill & Box available)", "No"] }
+        ]
+      },
+      "Smartwatches": {
+        "required": [
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Apple Watch, Samsung Galaxy Watch, Noise, Boat, Amazfit, Garmin" },
+          { name: "Model", label: "Model Name", type: "text", placeholder: "e.g. Apple Watch Series 8 45mm, Galaxy Watch 5" },
+          { name: "Compatibility", label: "Compatible OS", type: "select", options: ["Both Android & iOS", "iOS (Apple) Only", "Android Only"] }
+        ],
+        "optional": [
+          { name: "Strap Type & Size", label: "Strap Type & Dial Size", type: "text", placeholder: "e.g. 45mm Midnight Sport Band" },
+          { name: "Warranty Remaining", label: "Warranty Status", type: "text", placeholder: "e.g. 5 Months remaining" },
+          { name: "Bill & Box Available", label: "Original Box Available", type: "select", options: ["Yes (Original Box & Magnetic Charger)", "Charger Only"] }
+        ]
+      },
+      "Accessories (chargers, covers, earphones, power banks)": {
+        "required": [
+          { name: "Type", label: "Accessory Type", type: "select", options: ["Fast Charger & Adapter", "Charging Cable", "TWS Earbuds / Neckband", "Power Bank", "Protective Case / Cover", "Screen Protector", "Other Mobile Accessory"] },
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Apple, Samsung, Anker, Mi, Boat, Spigen" },
+          { name: "Compatible With", label: "Compatible Devices", type: "text", placeholder: "e.g. Type-C, iPhone 14/15, Universal" }
+        ],
+        "optional": [
+          { name: "Authenticity", label: "Original or Aftermarket", type: "select", options: ["100% Original Brand Product", "High Quality Aftermarket"] },
+          { name: "Capacity", label: "Capacity (for Power Banks)", type: "text", placeholder: "e.g. 10000 mAh / 20000 mAh" },
+          { name: "Warranty", label: "Warranty", type: "text", placeholder: "e.g. 6 Months warranty" },
+          { name: "Quantity", label: "Quantity", type: "number", placeholder: "1" }
+        ]
+      }
+    },
+
+    // ⚡ 5. ELECTRONICS & APPLIANCES
+    "Electronics & Appliances": {
+      "default": {
+        "required": [
+          { name: "Type", label: "Device Type", type: "select", options: ["Laptop", "Desktop PC", "All-in-One PC", "Gaming PC"] },
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Dell, HP, Lenovo, Apple MacBook, Asus, Acer" },
+          { name: "Model", label: "Model Name", type: "text", placeholder: "e.g. MacBook Air M2, ThinkPad X1, Pavilion 15" },
+          { name: "Processor", label: "Processor (CPU)", type: "text", placeholder: "e.g. Intel Core i5 12th Gen, Ryzen 5 5600H, Apple M2" },
+          { name: "RAM", label: "RAM Capacity", type: "select", options: ["4 GB", "8 GB", "16 GB", "32 GB", "64 GB"] },
+          { name: "Storage", label: "Storage (SSD/HDD)", type: "text", placeholder: "e.g. 512 GB NVMe SSD or 1TB HDD + 256GB SSD" },
+          { name: "Screen Size", label: "Screen Size (inches)", type: "text", placeholder: "e.g. 13.3", 14", 15.6", 16"" },
+          { name: "Purchase Year", label: "Purchase Year", type: "select", options: getYearOptions(2016) }
+        ],
+        "optional": [
+          { name: "Graphics Card", label: "Dedicated Graphics (GPU)", type: "text", placeholder: "e.g. NVIDIA RTX 3050 4GB or Integrated" },
+          { name: "Operating System", label: "Operating System", type: "select", options: ["Windows 11 Genuine", "Windows 10", "macOS", "Linux", "DOS / Formatting required"] },
+          { name: "Battery Backup", label: "Battery Backup", type: "text", placeholder: "e.g. 4 to 5 hours on normal use" },
+          { name: "Charger Included", label: "Original Charger Included", type: "select", options: ["Yes (Original Power Brick Included)", "No Charger"] },
+          { name: "Bill & Warranty", label: "Bill / Warranty Available", type: "text", placeholder: "e.g. Bill available, warranty expired" },
+          { name: "Repair History", label: "Any Hardware Repairs?", type: "text", placeholder: "e.g. None, clean motherboard and original keyboard" }
+        ]
+      },
+      "TVs": {
+        "required": [
+          { name: "Brand", label: "TV Brand", type: "text", placeholder: "e.g. Sony Bravia, Samsung, LG, Mi, OnePlus, TCL" },
+          { name: "Screen Size (inches)", label: "Screen Size (inches)", type: "select", options: ["32 inch", "40-43 inch", "50 inch", "55 inch", "65 inch", "75 inch+"] },
+          { name: "Type", label: "Display Technology", type: "select", options: ["LED Smart TV", "4K Ultra HD LED", "OLED TV", "QLED TV", "Standard LED (Non-smart)"] },
+          { name: "Smart TV", label: "Smart TV OS", type: "select", options: ["Yes (Google TV / Android TV)", "Yes (Samsung Tizen / LG webOS)", "No (Non-Smart)"] },
+          { name: "Purchase Year", label: "Purchase Year", type: "select", options: getYearOptions(2016) }
+        ],
+        "optional": [
+          { name: "Model", label: "Model Number", type: "text", placeholder: "e.g. KD-55X74K" },
+          { name: "Resolution", label: "Screen Resolution", type: "select", options: ["4K Ultra HD (3840x2160)", "Full HD (1080p)", "HD Ready (720p)"] },
+          { name: "Remote & Mount Included", label: "Remote & Wall Mount", type: "select", options: ["Both Remote and Wall Mount Included", "Remote & Table Stand", "Remote Only"] },
+          { name: "Defects", label: "Panel Defects", type: "select", options: ["Zero Defects (Flawless Screen)", "Minor pixel / line (Mentioned in desc)"] }
+        ]
+      },
+      "Refrigerators": {
+        "required": [
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. LG, Samsung, Whirlpool, Haier, Godrej, Bosch" },
+          { name: "Type", label: "Refrigerator Type", type: "select", options: ["Single Door Direct Cool", "Double Door Frost Free", "Side-by-Side Door", "Triple Door / Multi-Door"] },
+          { name: "Capacity (Litres)", label: "Capacity (Litres)", type: "number", placeholder: "e.g. 190L, 260L, 340L, 570L" },
+          { name: "Purchase Year", label: "Purchase Year", type: "select", options: getYearOptions(2015) }
+        ],
+        "optional": [
+          { name: "Star Rating", label: "Energy Star Rating", type: "select", options: ["5 Star", "4 Star", "3 Star", "2 Star", "1 Star"] },
+          { name: "Inverter", label: "Smart Inverter Compressor", type: "select", options: ["Yes (Smart Inverter)", "No"] },
+          { name: "Condition Note", label: "Cooling & Body Condition", type: "text", placeholder: "e.g. 100% cooling, no gas leakage, neat shelves" }
+        ]
+      },
+      "Washing Machines": {
+        "required": [
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. IFB, LG, Samsung, Bosch, Whirlpool" },
+          { name: "Type", label: "Machine Type", type: "select", options: ["Fully Automatic Front Load", "Fully Automatic Top Load", "Semi-Automatic (Twin Tub)"] },
+          { name: "Capacity (kg)", label: "Capacity (kg)", type: "select", options: ["6.0 kg", "6.5 kg", "7.0 kg", "7.5 kg", "8.0 kg", "9.0 kg+"] },
+          { name: "Purchase Year", label: "Purchase Year", type: "select", options: getYearOptions(2016) }
+        ],
+        "optional": [
+          { name: "Inverter", label: "Inverter Motor", type: "select", options: ["Yes (Direct Drive / Inverter)", "Standard"] },
+          { name: "Inlet Pipes Included", label: "Pipes & Drain Hose Included", type: "select", options: ["Yes (All Pipes & Tap Connector)", "Pipes not included"] }
+        ]
+      },
+      "Air Conditioners": {
+        "required": [
+          { name: "Brand", label: "AC Brand", type: "text", placeholder: "e.g. Daikin, Voltas, LG, Blue Star, Hitachi, Lloyd" },
+          { name: "Type", label: "AC Type", type: "select", options: ["Split AC (Indoor + Outdoor Unit)", "Window AC"] },
+          { name: "Tonnage Capacity", label: "Cooling Capacity (Tons)", type: "select", options: ["1.0 Ton", "1.5 Ton", "2.0 Ton"] },
+          { name: "Purchase Year", label: "Purchase Year", type: "select", options: getYearOptions(2016) }
+        ],
+        "optional": [
+          { name: "Star Rating", label: "Star Rating", type: "select", options: ["5 Star Inverter", "3 Star Inverter", "3 Star Non-Inverter", "2 Star"] },
+          { name: "Installation Kit Included", label: "Copper Pipe & Brackets Included", type: "select", options: ["Yes (Full Copper Pipe & Wall Bracket)", "Remote Only"] }
+        ]
+      },
+      "Cameras & Lenses": {
+        "required": [
+          { name: "Type", label: "Camera / Gear Type", type: "select", options: ["DSLR Camera", "Mirrorless Camera", "Camera Lens Only", "Action Camera (GoPro/Insta360)", "Point & Shoot Digital", "CCTV Camera System"] },
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Canon, Sony, Nikon, Fujifilm, GoPro" },
+          { name: "Model", label: "Model Name", type: "text", placeholder: "e.g. Sony A7 III, Canon EOS 200D II, GoPro Hero 11" }
+        ],
+        "optional": [
+          { name: "Shutter Count", label: "Shutter Count (for DSLRs)", type: "number", placeholder: "e.g. 15000" },
+          { name: "Lens Included", label: "Lenses Included", type: "text", placeholder: "e.g. 18-55mm Kit Lens + 50mm f/1.8 Prime" },
+          { name: "Accessories", label: "Included Accessories", type: "text", placeholder: "e.g. 2 Batteries, Charger, Camera Bag, 64GB Extreme SD Card" }
+        ]
+      },
+      "Gaming Consoles & Games": {
+        "required": [
+          { name: "Type", label: "Item Type", type: "select", options: ["Gaming Console System", "Original Game Disk / Cartridge", "Wireless Controller", "VR Headset", "Gaming Accessory"] },
+          { name: "Platform / Brand", label: "Platform", type: "select", options: ["PlayStation 5 (PS5)", "PlayStation 4 (PS4)", "Xbox Series X / Series S", "Xbox One", "Nintendo Switch", "PC Gaming Rig"] }
+        ],
+        "optional": [
+          { name: "Storage / Model", label: "Edition & Internal Storage", type: "text", placeholder: "e.g. PS5 Disc Edition 825GB / 1TB" },
+          { name: "Games Included", label: "Included Games Titles", type: "text", placeholder: "e.g. GTA V, FIFA 24, Spider-Man 2" },
+          { name: "Controllers Included", label: "Number of Controllers", type: "select", options: ["1 Controller", "2 Original Controllers", "No Controller"] }
+        ]
+      }
+    },
+
+    // 🪑 6. FURNITURE & HOME
+    "Furniture & Home": {
+      "default": {
+        "required": [
+          { name: "Item Type", label: "Furniture Type", type: "text", placeholder: "e.g. 3+1+1 Sofa Set, King Size Bed, Dining Table 6-Seater, Office Chair" },
+          { name: "Primary Material", label: "Primary Material", type: "select", options: ["Solid Teak Wood (Sagwan)", "Sheesham Wood", "Engineered Wood / MDF", "Leatherette / Fabric", "Stainless Steel / Metal", "Plastic / Cane"] }
+        ],
+        "optional": [
+          { name: "Dimensions", label: "Dimensions (L x W x H)", type: "text", placeholder: "e.g. 6 ft x 3 ft x 30 inches" },
+          { name: "Color", label: "Color / Finish", type: "text", placeholder: "e.g. Walnut Brown, Royal Blue" },
+          { name: "Storage Included", label: "Storage Included", type: "select", options: ["Yes (Hydraulic / Box Storage)", "Yes (Drawers)", "No Storage"] },
+          { name: "Age / Usage Duration", label: "Approximate Age", type: "text", placeholder: "e.g. 1.5 years used" }
+        ]
+      },
+      "Beds & Mattresses": {
+        "required": [
+          { name: "Bed Size", label: "Bed Size", type: "select", options: ["King Size (72x78 in)", "Queen Size (60x78 in)", "Double Bed", "Single Bed (36x75 in)"] },
+          { name: "Material", label: "Material", type: "select", options: ["Solid Sheesham Wood", "Teak Wood", "Engineered Plywood", "Metal / Iron"] }
+        ],
+        "optional": [
+          { name: "Storage Option", label: "Storage Type", type: "select", options: ["Hydraulic Storage System", "Underbed Box Storage", "Drawers", "No Storage"] },
+          { name: "Mattress Included", label: "Mattress Details", type: "text", placeholder: "e.g. Sleepwell 6-inch Ortho Memory Foam Included" }
+        ]
+      },
+      "Sofa & Dining Sets": {
+        "required": [
+          { name: "Type", label: "Set Type", type: "select", options: ["3-Seater Sofa", "3+1+1 Sofa Set", "L-Shaped Corner Sofa", "Dining Table 4-Seater", "Dining Table 6-Seater", "Sofa-cum-Bed", "Recliner Single"] },
+          { name: "Seating Capacity", label: "Seating Capacity", type: "text", placeholder: "e.g. 5 Seater" },
+          { name: "Material", label: "Upholstery & Frame", type: "select", options: ["Fabric Upholstery with Wooden Frame", "Leatherette / PU Leather", "Solid Sheesham Wood", "Glass Top Dining Table"] }
+        ],
+        "optional": [
+          { name: "Cushion Condition", label: "Cushion Firmness", type: "select", options: ["High Resilience (Firm & Intact)", "Soft & Comfortable", "Normal wear"] }
+        ]
+      }
+    },
+
+    // 👗 7. FASHION
+    "Fashion": {
+      "default": {
+        "required": [
+          { name: "Category & Gender", label: "Gender & Category", type: "select", options: ["Men's Fashion", "Women's Fashion", "Kids & Boys", "Kids & Girls", "Unisex"] },
+          { name: "Item Type", label: "Item Type", type: "text", placeholder: "e.g. Formal Suit, Saree, Leather Jacket, Sneakers, Watch" },
+          { name: "Size", label: "Size", type: "text", placeholder: "e.g. M, L, XL, 32, UK 9" }
+        ],
+        "optional": [
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Zara, Levi's, Nike, Manyavar, Tommy Hilfiger" },
+          { name: "Fabric / Material", label: "Fabric / Material", type: "text", placeholder: "e.g. Pure Silk, 100% Cotton, Genuine Leather" },
+          { name: "Occasion", label: "Occasion", type: "select", options: ["Casual Wear", "Party & Wedding Ethnic Wear", "Formal / Business", "Sports & Gym"] },
+          { name: "Condition & Cleanliness", label: "Cleanliness Status", type: "select", options: ["Brand New with Tags (Unworn)", "Dry Cleaned & Sanitized", "Washed & Ready"] }
+        ]
+      },
+      "Watches": {
+        "required": [
+          { name: "Brand", label: "Watch Brand", type: "text", placeholder: "e.g. Titan, Fossil, Casio, Seiko, Tissot, Fastrack" },
+          { name: "Movement", label: "Movement Type", type: "select", options: ["Quartz Analog (Battery)", "Automatic Mechanical", "Digital (G-Shock style)", "Chronograph"] },
+          { name: "Gender", label: "Target Gender", type: "select", options: ["Men's Watch", "Women's Watch", "Unisex"] }
+        ],
+        "optional": [
+          { name: "Strap Material", label: "Strap Material", type: "select", options: ["Stainless Steel Bracelet", "Genuine Leather Strap", "Silicone / Rubber", "Mesh Band"] },
+          { name: "Box & Invoice", label: "Original Tin / Box", type: "select", options: ["Yes (Original Box & Warranty Card)", "Watch Only"] }
+        ]
+      }
+    },
+
+    // 👶 8. KIDS & BABY
+    "Kids & Baby": {
+      "default": {
+        "required": [
+          { name: "Age Group", label: "Suitable Age Group", type: "select", options: ["0 - 6 Months", "6 - 12 Months", "1 - 3 Years", "3 - 5 Years", "6 - 8 Years", "9+ Years"] },
+          { name: "Item Type", label: "Item Type", type: "text", placeholder: "e.g. Pram / Stroller, Wooden Baby Cot, Battery Ride-on Car, High Chair, Toys" }
+        ],
+        "optional": [
+          { name: "Brand", label: "Brand", type: "text", placeholder: "e.g. Chicco, LuvLap, Mee Mee, Fisher-Price, Lego" },
+          { name: "Safety & Sanitization", label: "Hygiene Status", type: "select", options: ["Thoroughly Sanitized & Cleaned", "Gently Used"] },
+          { name: "Foldable / Adjustable", label: "Foldable / Multi-Position", type: "select", options: ["Yes (Easy Foldable)", "Adjustable Height", "Standard Fixed"] }
+        ]
+      }
+    },
+
+    // 📚 9. BOOKS, SPORTS & HOBBIES
+    "Books, Sports & Hobbies": {
+      "default": {
+        "required": [
+          { name: "Category", label: "Hobby / Interest Type", type: "select", options: ["Books & Novels", "Competitive Exam Study Notes", "Gym & Fitness Equipment", "Sports Kit & Accessories", "Musical Instrument", "Art & Craft Collectibles"] },
+          { name: "Item Title / Equipment", label: "Item Name / Title", type: "text", placeholder: "e.g. Acoustic Guitar, Motorized Treadmill, UPSC Notes, English Willow Bat" }
+        ],
+        "optional": [
+          { name: "Brand / Author", label: "Brand / Author / Institute", type: "text", placeholder: "e.g. Yamaha, Decathlon, Vision IAS, J.K. Rowling" },
+          { name: "Condition of Pages / Gear", label: "Item Condition Details", type: "text", placeholder: "e.g. All keys functional / Pages clean without pencil marks" },
+          { name: "Accessories Included", label: "Bag / Case / Accessories Included", type: "text", placeholder: "e.g. Heavy padded guitar bag, strap and capo included" }
+        ]
+      },
+      "Books": {
+        "required": [
+          { name: "Book Title", label: "Book Title", type: "text", placeholder: "e.g. Atomic Habits, Psychology of Money" },
+          { name: "Author", label: "Author", type: "text", placeholder: "e.g. James Clear, Morgan Housel" },
+          { name: "Language", label: "Language", type: "select", options: ["English", "Hindi", "Gujarati", "Marathi", "Tamil", "Other"] },
+          { name: "Format", label: "Book Format", type: "select", options: ["Paperback", "Hardcover"] }
+        ],
+        "optional": [
+          { name: "Genre / Subject", label: "Genre", type: "text", placeholder: "e.g. Self-help, Fiction, Business, Tech" },
+          { name: "Condition of Pages", label: "Page Condition", type: "select", options: ["Clean (Like New, No Markings)", "Minor Highlighter / Notes", "Pre-read Normal Wear"] }
+        ]
+      }
+    },
+
+    // 🔧 10. TOOLS & MACHINERY
+    "Tools & Machinery": {
+      "default": {
+        "required": [
+          { name: "Tool / Machine Type", label: "Machine / Tool Type", type: "text", placeholder: "e.g. Heavy Drill Machine, Silent Generator 5kVA, Lathe Machine, Farm Rotavator" },
+          { name: "Make / Brand", label: "Brand / Make", type: "text", placeholder: "e.g. Bosch, DeWalt, Honda, Kirloskar, Stanley" },
+          { name: "Operational Condition", label: "Working Condition", type: "select", options: ["100% Tested & Fully Operational", "Working Normal", "Requires Minor Servicing"] }
+        ],
+        "optional": [
+          { name: "Power Source", label: "Power Source", type: "select", options: ["Electric Corded (220V Single Phase)", "Industrial 3-Phase (415V)", "Cordless Battery Operated", "Diesel / Petrol Engine", "Manual"] },
+          { name: "Capacity / Output", label: "Output / Power (Watts, kVA, HP)", type: "text", placeholder: "e.g. 750W, 5 kVA, 3 HP Motor" },
+          { name: "Live Inspection", label: "Live Testing Available for Buyer", type: "select", options: ["Yes (Buyer can test on site)", "Video Demo Available"] }
+        ]
+      }
+    },
+
+    // 🏠 11. PROPERTIES
+    "Properties": {
+      "default": {
+        "required": [
+          { name: "Property Type", label: "Property Type", type: "select", options: ["Multistorey Apartment / Flat", "Independent House / Villa", "Residential Plot / Land", "Commercial Office Space", "Commercial Shop / Showroom", "PG / Co-Living Hostel"] },
+          { name: "Listing For", label: "For Sale or For Rent?", type: "select", options: ["For Sale (Outright Purchase)", "For Rent (Monthly Lease)"] },
+          { name: "BHK / Room Config", label: "BHK Configuration", type: "select", options: ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK / Villa", "Not Applicable (Plot/Shop)"] },
+          { name: "Super Built-up Area (sq ft)", label: "Super Built-up Area (sq. ft.)", type: "number", placeholder: "e.g. 1450" }
+        ],
+        "optional": [
+          { name: "Carpet Area (sq ft)", label: "Carpet Area (sq. ft.)", type: "number", placeholder: "e.g. 1100" },
+          { name: "Facing", label: "Facing Direction", type: "select", options: ["East Facing (Vastu compliant)", "North-East Facing", "North Facing", "West Facing", "South Facing"] },
+          { name: "Floor Number", label: "Floor & Total Floors", type: "text", placeholder: "e.g. 5th Floor out of 14 Floors" },
+          { name: "Furnishing Status", label: "Furnishing Status", type: "select", options: ["Fully Furnished (AC, TV, Sofa, Beds, Modular Kitchen)", "Semi-Furnished (Wardrobes, Cabinets, Fans)", "Unfurnished"] },
+          { name: "Reserved Parking", label: "Parking", type: "select", options: ["1 Covered Car Parking", "2 Covered Car Parkings", "Open Car Parking", "Bike Parking Only", "No Parking"] },
+          { name: "Bathrooms", label: "Number of Bathrooms", type: "select", options: ["1 Bathroom", "2 Bathrooms", "3 Bathrooms", "4+ Bathrooms"] },
+          { name: "Balconies", label: "Number of Balconies", type: "select", options: ["1 Balcony", "2 Balconies", "3+ Balconies", "No Balcony"] },
+          { name: "Ownership & RERA", label: "Title / RERA Status", type: "text", placeholder: "e.g. Freehold Property / RERA Approved Project" }
+        ],
+        "features": ["Lift / Elevator", "24x7 Power Backup", "24x7 Security & CCTV", "Gated Society", "Clubhouse & Gym", "Swimming Pool", "Children Play Area", "Piped Gas (PNG)", "Covered Car Parking"]
+      },
+      "Houses & Apartments for Rent": {
+        "required": [
+          { name: "Property Type", label: "Property Type", type: "select", options: ["Flat / Apartment", "Independent House", "Builder Floor", "Penthouse"] },
+          { name: "BHK", label: "BHK", type: "select", options: ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK"] },
+          { name: "Monthly Rent (₹)", label: "Monthly Rent (₹)", type: "number", placeholder: "e.g. 25000" },
+          { name: "Security Deposit (₹)", label: "Security Deposit (₹)", type: "number", placeholder: "e.g. 50000" }
+        ],
+        "optional": [
+          { name: "Built-up Area (sq ft)", label: "Super Built-up Area (sq. ft.)", type: "number", placeholder: "e.g. 1200" },
+          { name: "Furnishing", label: "Furnishing", type: "select", options: ["Fully Furnished", "Semi-Furnished", "Unfurnished"] },
+          { name: "Preferred Tenants", label: "Preferred Tenants", type: "select", options: ["Family Only", "Bachelors / Students Welcome", "Any (Family or Bachelors)"] },
+          { name: "Available From", label: "Available From Date", type: "text", placeholder: "e.g. Immediately / 1st of next month" },
+          { name: "Pet Friendly", label: "Pet Friendly?", type: "select", options: ["Yes (Pets Allowed)", "No Pets Allowed"] }
+        ]
+      },
+      "Land & Plots": {
+        "required": [
+          { name: "Plot Type", label: "Plot Category", type: "select", options: ["Residential NA Plot", "Commercial Land", "Agricultural Farmland", "Industrial NA Land"] },
+          { name: "Plot Area", label: "Total Area (with unit)", type: "text", placeholder: "e.g. 1500 sq ft or 200 sq yards or 2 Acres" },
+          { name: "Total Price (₹)", label: "Total Asking Price (₹)", type: "number", placeholder: "e.g. 3500000" }
+        ],
+        "optional": [
+          { name: "Dimensions", label: "Dimensions (Length x Width)", type: "text", placeholder: "e.g. 30 x 50 feet" },
+          { name: "Boundary Wall", label: "Boundary Wall Constructed?", type: "select", options: ["Yes (Constructed Boundary Wall)", "No (Open Land)"] },
+          { name: "Corner Plot", label: "Is it a Corner Plot?", type: "select", options: ["Yes (Corner Plot with 2 Roads)", "No (Single Road Frontage)"] },
+          { name: "Road Width", label: "Road Width in Front", type: "text", placeholder: "e.g. 40 feet wide tar road" },
+          { name: "Clear Title", label: "Clear Title & Documents", type: "select", options: ["100% Clear Title, Registry Ready", "Cooperative Society"] }
+        ]
+      },
+      "PG / Hostels": {
+        "required": [
+          { name: "PG Type", label: "Accommodation For", type: "select", options: ["PG for Men / Boys", "PG for Women / Girls", "Co-Ed Unisex PG / Co-living"] },
+          { name: "Room Sharing", label: "Room Sharing Option", type: "select", options: ["Single Private Room", "Double Sharing", "Triple Sharing", "4-Bed Sharing"] },
+          { name: "Rent per Bed (₹)", label: "Rent per Bed (₹/month)", type: "number", placeholder: "e.g. 8500" }
+        ],
+        "optional": [
+          { name: "Food Facility", label: "Food / Meals Included", type: "select", options: ["3 Times Food Included (Breakfast, Lunch, Dinner)", "Food Optional", "No Food (Self Cooking)"] },
+          { name: "Attached Washroom", label: "Attached Washroom", type: "select", options: ["Yes (Private Attached Bathroom)", "Shared Common Bathroom"] },
+          { name: "AC Room", label: "AC in Room", type: "select", options: ["Yes (AC Room)", "Non-AC Room (Cooler/Fan)"] },
+          { name: "Security Deposit", label: "Deposit Amount (₹)", type: "number", placeholder: "e.g. 5000" },
+          { name: "Notice Period", label: "Notice Period", type: "text", placeholder: "e.g. 1 Month / 15 Days" }
+        ],
+        "features": ["High-Speed Wi-Fi", "Daily Room Cleaning / Housekeeping", "Automatic Washing Machine", "RO Drinking Water", "Refrigerator Access", "CCTV Security", "Geyser / Hot Water", "Power Backup"]
+      }
+    },
+
+    // 📦 12. OTHERS
+    "Others": {
+      "default": {
+        "required": [
+          { name: "Item Category", label: "Item Category / Type", type: "text", placeholder: "e.g. Musical Vinyl, Handcrafted Item, Vintage Clock" }
+        ],
+        "optional": [
+          { name: "Brand / Maker", label: "Brand / Maker", type: "text", placeholder: "e.g. Handcrafted / Custom / Brand" },
+          { name: "Material", label: "Material", type: "text", placeholder: "e.g. Metal, Wood, Ceramic, Fabric" },
+          { name: "Age", label: "Item Age", type: "text", placeholder: "e.g. 6 months / 2 years" }
+        ]
+      }
+    }
+  };
+
+  // Helper to generate year dropdown options (current year down to startYear)
+  function getYearOptions(startYear) {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let y = currentYear; y >= startYear; y--) {
+      years.push(y.toString());
+    }
+    return years;
+  }
+
+  // 3. Category Dropdowns synchronization
+  const mainCatSelect = document.getElementById('main_category');
+  const subCatSelect = document.getElementById('sub_category');
+  const catIndicator = document.getElementById('active-category-indicator');
+  const catPathDisplay = document.getElementById('category-path-display');
+  const specsCard = document.getElementById('category-specs-card');
+  const dynamicContainer = document.getElementById('dynamic-fields-container');
+  const specsTitle = document.getElementById('category-specs-title');
+
+  mainCatSelect.addEventListener('change', function () {
+    const selectedMain = this.value;
+    subCatSelect.innerHTML = '<option value="" disabled selected>-- Select Sub-Category --</option>';
+
+    // Find category in tree
+    const foundCat = categoriesData.find(c => c.name === selectedMain);
+    if (foundCat && foundCat.subcategories.length > 0) {
+      foundCat.subcategories.forEach(sub => {
+        const opt = document.createElement('option');
+        opt.value = sub.name;
+        opt.textContent = sub.name;
+        subCatSelect.appendChild(opt);
+      });
+      subCatSelect.disabled = false;
+    } else {
+      // No subcategories, use main
+      const opt = document.createElement('option');
+      opt.value = selectedMain;
+      opt.textContent = selectedMain + " (General)";
+      subCatSelect.appendChild(opt);
+      subCatSelect.disabled = false;
+    }
+
+    // Trigger render
+    renderCategorySpecs(selectedMain, "");
+  });
+
+  subCatSelect.addEventListener('change', function () {
+    const selectedMain = mainCatSelect.value;
+    const selectedSub = this.value;
+    renderCategorySpecs(selectedMain, selectedSub);
+  });
+
+  // Render Category Specific Form Fields
+  function renderCategorySpecs(mainCategory, subCategory) {
+    if (!mainCategory) {
+      specsCard.style.display = 'none';
+      catIndicator.style.display = 'none';
+      return;
+    }
+
+    catIndicator.style.display = 'block';
+    catPathDisplay.textContent = subCategory ? `${mainCategory} > ${subCategory}` : mainCategory;
+
+    // Resolve specs definition
+    const catGroup = CATEGORY_SPECS[mainCategory] || CATEGORY_SPECS["Others"];
+    const spec = (subCategory && catGroup[subCategory]) ? catGroup[subCategory] : (catGroup["default"] || catGroup[Object.keys(catGroup)[0]]);
+
+    if (!spec) {
+      specsCard.style.display = 'none';
+      return;
+    }
+
+    specsCard.style.display = 'block';
+    specsTitle.textContent = `${subCategory || mainCategory} Specifications`;
+
+    let html = '';
+
+    // Required specs fields
+    if (spec.required && spec.required.length > 0) {
+      html += '<div class="row">';
+      spec.required.forEach(f => {
+        html += renderFieldHTML(f, true);
+      });
+      html += '</div>';
+    }
+
+    // Optional specs fields
+    if (spec.optional && spec.optional.length > 0) {
+      html += '<h6 style="font-size: 13px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 12px 0;">Additional Specifications</h6>';
+      html += '<div class="row">';
+      spec.optional.forEach(f => {
+        html += renderFieldHTML(f, false);
+      });
+      html += '</div>';
+    }
+
+    // Checkbox features
+    if (spec.features && spec.features.length > 0) {
+      html += '<h6 style="font-size: 13px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin: 18px 0 12px 0;">Features & Amenities</h6>';
+      html += '<div class="d-flex flex-wrap">';
+      spec.features.forEach((feat, idx) => {
+        html += `
+          <label class="feature-checkbox-label" id="label-feat-${idx}">
+            <input type="checkbox" name="feature_item" value="${feat}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
+            <span>${feat}</span>
+          </label>
+        `;
+      });
+      html += '</div>';
+    }
+
+    dynamicContainer.innerHTML = html;
+  }
+
+  function renderFieldHTML(f, isRequired) {
+    const colClass = (f.type === 'select' || f.type === 'number') ? 'col-md-4 col-sm-6' : 'col-md-6 col-sm-12';
+    const reqBadge = isRequired ? '<span class="req">*</span>' : '<span class="opt">Optional</span>';
+    const inputClass = isRequired ? 'custom-input dyn-field dyn-required' : 'custom-input dyn-field';
+    const selectClass = isRequired ? 'custom-select dyn-field dyn-required' : 'custom-select dyn-field';
+
+    let inputMarkup = '';
+    if (f.type === 'select') {
+      let optionsMarkup = `<option value="" disabled selected>-- Select ${f.label} --</option>`;
+      f.options.forEach(opt => {
+        optionsMarkup += `<option value="${opt}">${opt}</option>`;
+      });
+      inputMarkup = `<select class="${selectClass}" data-field-name="${f.name}">${optionsMarkup}</select>`;
+    } else {
+      inputMarkup = `<input type="${f.type || 'text'}" class="${inputClass}" data-field-name="${f.name}" placeholder="${f.placeholder || ''}">`;
+    }
+
+    return `
+      <div class="${colClass} mb-3">
+        <label class="field-label">${f.label} ${reqBadge}</label>
+        ${inputMarkup}
+      </div>
+    `;
+  }
+
+  // 4. Condition selector pill behavior
+  const conditionInput = document.getElementById('condition');
+  const pills = document.querySelectorAll('.condition-pill');
+  pills.forEach(pill => {
+    pill.addEventListener('click', function () {
+      pills.forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      conditionInput.value = this.getAttribute('data-condition');
+    });
+  });
+
+  // 5. Photo Uploading (Drag-and-Drop, Min 2, Max 10)
+  let selectedFiles = [];
+  const dropzone = document.getElementById('dropzone');
+  const photoInput = document.getElementById('photo-input');
+  const previewGrid = document.getElementById('photos-preview-grid');
+  const photoCounter = document.getElementById('photo-counter');
+  const photoMsg = document.getElementById('photomsg');
+
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, preventDefaults, false);
+  });
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, () => dropzone.classList.add('dragover'), false);
+  });
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, () => dropzone.classList.remove('dragover'), false);
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    handleFiles(dt.files);
+  });
+
+  photoInput.addEventListener('change', function () {
+    handleFiles(this.files);
+  });
+
+  function handleFiles(files) {
+    photoMsg.innerHTML = '';
+    const newFiles = Array.from(files);
+
+    if (selectedFiles.length + newFiles.length > 10) {
+      photoMsg.innerHTML = '<div class="alert alert-warning py-1 px-2">You can only upload up to 10 photos. Excess files were ignored.</div>';
+    }
+
+    for (let f of newFiles) {
+      if (selectedFiles.length >= 10) break;
+      if (!f.type.startsWith('image/')) continue;
+      selectedFiles.push(f);
+    }
+    renderPreviews();
+  }
+
+  function renderPreviews() {
+    previewGrid.innerHTML = '';
+    selectedFiles.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const card = document.createElement('div');
+        card.className = 'preview-card';
+        card.innerHTML = `
+          <img src="${e.target.result}" alt="Preview ${index + 1}">
+          <button type="button" class="remove-btn" title="Remove" onclick="removePhoto(${index})">&times;</button>
+          ${index === 0 ? '<span class="badge-cover">Cover Photo</span>' : ''}
+        `;
+        previewGrid.appendChild(card);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    photoCounter.textContent = `${selectedFiles.length} / 10 Photos Added`;
+    if (selectedFiles.length < 2) {
+      photoCounter.style.background = '#fee2e2';
+      photoCounter.style.color = '#ef4444';
+    } else {
+      photoCounter.style.background = '#eef2ff';
+      photoCounter.style.color = '#4f46e5';
+    }
+  }
+
+  window.removePhoto = function (index) {
+    selectedFiles.splice(index, 1);
+    renderPreviews();
+  };
+
+  // 6. Form Submission with AJAX
+  const submitBtn = document.getElementById('submitAdBtn');
+  const alertContainer = document.getElementById('form-alert-container');
+
+  submitBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    alertContainer.innerHTML = '';
+    let isValid = true;
+
+    // Reset error messages
+    document.getElementById('titlemsg').innerHTML = '';
+    document.getElementById('pricemsg').innerHTML = '';
+    document.getElementById('phonemsg').innerHTML = '';
+    photoMsg.innerHTML = '';
+
+    // Validate Common Fields
+    const titleVal = document.getElementById('title').value.trim();
+    const descVal = document.getElementById('description').value.trim();
+    const priceVal = document.getElementById('price').value.trim();
+    const mainCatVal = mainCatSelect.value;
+    const subCatVal = subCatSelect.value;
+    const stateVal = document.getElementById('state').value;
+    const cityVal = document.getElementById('city').value.trim();
+    const areaVal = document.getElementById('area').value.trim();
+    const phoneVal = document.getElementById('phone').value.trim();
+
+    if (!mainCatVal || !subCatVal) {
+      alertContainer.innerHTML = '<div class="alert alert-danger">Please choose a Main Category and Sub-Category.</div>';
+      window.scrollTo({ top: 200, behavior: 'smooth' });
+      return;
+    }
+
+    if (!titleVal) {
+      document.getElementById('titlemsg').textContent = 'Please enter an ad title.';
+      isValid = false;
+    }
+    if (!priceVal || isNaN(priceVal) || Number(priceVal) < 0) {
+      document.getElementById('pricemsg').textContent = 'Please enter a valid numeric price.';
+      isValid = false;
+    }
+    if (!descVal) {
+      document.getElementById('descriptionmsg').textContent = 'Please provide a detailed product description.';
+      isValid = false;
+    }
+    if (!stateVal) {
+      alertContainer.innerHTML = '<div class="alert alert-danger">Please select your state.</div>';
+      isValid = false;
+    }
+    if (!cityVal || !areaVal) {
+      alertContainer.innerHTML = '<div class="alert alert-danger">Please provide both your City and Area / Locality.</div>';
+      isValid = false;
+    }
+    if (!phoneVal) {
+      document.getElementById('phonemsg').textContent = 'Please enter your phone number.';
+      isValid = false;
+    }
+
+    // Validate Dynamic Category Required Fields
+    const requiredDynFields = document.querySelectorAll('.dyn-required');
+    let missingDynNames = [];
+    requiredDynFields.forEach(field => {
+      const val = field.value.trim();
+      const fName = field.getAttribute('data-field-name');
+      if (!val) {
+        field.style.borderColor = '#ef4444';
+        missingDynNames.push(fName);
+        isValid = false;
+      } else {
+        field.style.borderColor = '#cbd5e1';
+      }
+    });
+
+    if (missingDynNames.length > 0) {
+      alertContainer.innerHTML = `<div class="alert alert-danger">Please fill in the required category specifications: <strong>${missingDynNames.slice(0, 3).join(', ')}${missingDynNames.length > 3 ? '...' : ''}</strong></div>`;
+    }
+
+    // Validate Photos: Minimum 2, Maximum 10
+    if (selectedFiles.length < 2) {
+      photoMsg.innerHTML = '<div class="alert alert-danger font-weight-bold">Minimum 2 photos are required to post an ad. Please upload at least 2 clear photos.</div>';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      return;
+    }
+
+    // Build FormData
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    formData.append('title', titleVal);
+    formData.append('description', descVal);
+    formData.append('category', subCatVal || mainCatVal);
+    formData.append('price', priceVal);
+    formData.append('condition', conditionInput.value);
+    formData.append('brand', document.getElementById('brand').value.trim());
+    formData.append('state', stateVal);
+    formData.append('city', cityVal);
+    formData.append('area', areaVal);
+    formData.append('seller_name', document.getElementById('seller_name').value.trim());
+    formData.append('phone', phoneVal);
+
+    // Optional Common Fields
+    formData.append('is_negotiable', document.getElementById('is_negotiable').value);
+    formData.append('purchase_year', document.getElementById('purchase_year').value.trim());
+    formData.append('reason_for_selling', document.getElementById('reason_for_selling').value.trim());
+    formData.append('bill_or_warranty', document.getElementById('bill_or_warranty').value.trim());
+    formData.append('exchange_accepted', document.getElementById('exchange_accepted').value);
+    formData.append('preferred_contact', document.getElementById('preferred_contact').value);
+    formData.append('delivery_available', document.getElementById('delivery_available').value);
+    formData.append('video', document.getElementById('video').value.trim());
+
+    // Gather Category Extra Specifications
+    const extraDetails = {};
+    const allDynFields = document.querySelectorAll('.dyn-field');
+    allDynFields.forEach(f => {
+      const val = f.value.trim();
+      const name = f.getAttribute('data-field-name');
+      if (val) {
+        extraDetails[name] = val;
+      }
+    });
+
+    // Gather features checkboxes
+    const checkedFeatures = [];
+    document.querySelectorAll('input[name="feature_item"]:checked').forEach(chk => {
+      checkedFeatures.push(chk.value);
+    });
+    if (checkedFeatures.length > 0) {
+      extraDetails['Key Features'] = checkedFeatures.join(', ');
+    }
+
+    formData.append('extra_details', JSON.stringify(extraDetails));
+
+    // Append Images
+    formData.append('length', selectedFiles.length);
+    for (let i = 0; i < selectedFiles.length; i++) {
+      formData.append('images' + i, selectedFiles[i]);
+    }
+
+    // Disable button & show spinner
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span> Posting Your Ad...';
+
+    $.ajax({
+      type: 'POST',
+      url: '{% url "post-ads" %}',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (response) {
+        alertContainer.innerHTML = `
+          <div class="alert alert-success py-3 text-center" style="border-radius: 12px;">
+            <h4 style="color: #065f46; font-weight: 800; margin-bottom: 6px;">🎉 Congratulations! Ad Posted Successfully</h4>
+            <p style="margin-bottom: 12px; color: #047857;">Your ad is live on PreLoved marketplace. Redirecting you to your ad page...</p>
+            <a href="${response.redirect_url || '#'}" class="btn btn-sm btn-success font-weight-bold px-3 py-1">View Ad Now &rarr;</a>
+          </div>
+        `;
+        submitBtn.innerHTML = '<i class="lni-check-mark-circle mr-1"></i> Ad Posted!';
+        setTimeout(function () {
+          if (response.redirect_url) {
+            window.location.href = response.redirect_url;
+          }
+        }, 1500);
+      },
+      error: function (xhr) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="lni-check-mark-circle mr-1"></i> Post Ad Now';
+        let errMsg = 'An error occurred while posting your ad. Please verify all fields.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          errMsg = xhr.responseJSON.message;
+        }
+        alertContainer.innerHTML = `<div class="alert alert-danger py-2">${errMsg}</div>`;
+        window.scrollTo({ top: alertContainer.offsetTop - 100, behavior: 'smooth' });
+      }
+    });
+  });
+});
+</script>
+{% endblock content %}

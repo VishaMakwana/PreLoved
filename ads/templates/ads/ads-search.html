@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section class="section-padding" style="background:#f8fafc;min-height:60vh">
+  <div class="container">
+    <div class="mb-4">
+      <small class="text-uppercase text-primary font-weight-bold">Marketplace</small>
+      <h1 class="font-weight-bold">Find your next good thing</h1>
+    </div>
+    <form method="get" action="{% url 'ads-search' %}" class="p-3 mb-4 bg-white border rounded">
+      <div class="form-row">
+        <div class="form-group col-lg-4 col-md-6">
+          <label for="search-keyword">Search</label>
+          <input id="search-keyword" class="form-control" name="customword" value="{{ customword }}" placeholder="Item, brand or detail">
+        </div>
+        <div class="form-group col-lg-2 col-md-6">
+          <label for="search-category">Category</label>
+          <select id="search-category" class="form-control" name="category_name">
+            <option value="">All categories</option>
+            {% for category in categories %}
+            <option value="{{ category.category_name }}" {% if category_name == category.category_name %}selected{% endif %}>{{ category.category_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group col-lg-2 col-md-6">
+          <label for="search-state">State</label>
+          <select id="search-state" class="form-control" name="state_name">
+            <option value="">All states</option>
+            {% for state in states %}
+            <option value="{{ state.state_name }}" {% if state_name == state.state_name %}selected{% endif %}>{{ state.state_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group col-lg-2 col-md-6">
+          <label for="search-city">City</label>
+          <input id="search-city" class="form-control" name="city" value="{{ city }}" placeholder="Any city">
+        </div>
+        <div class="form-group col-lg-2 col-md-6">
+          <label for="search-condition">Condition</label>
+          <select id="search-condition" class="form-control" name="condition">
+            <option value="">Any condition</option>
+            {% for value, label in conditions %}
+            <option value="{{ value }}" {% if condition == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group col-md-3">
+          <label for="search-min-price">Min price (₹)</label>
+          <input id="search-min-price" class="form-control" type="number" step="0.01" min="0" name="min_price" value="{{ min_price }}">
+        </div>
+        <div class="form-group col-md-3">
+          <label for="search-max-price">Max price (₹)</label>
+          <input id="search-max-price" class="form-control" type="number" step="0.01" min="0" name="max_price" value="{{ max_price }}">
+        </div>
+        <div class="form-group col-md-3">
+          <label for="search-sort">Sort by</label>
+          <select id="search-sort" class="form-control" name="sort">
+            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: low to high</option>
+            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: high to low</option>
+          </select>
+        </div>
+        <div class="form-group col-md-3 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary btn-block">Apply filters</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h2 class="h5 mb-0">{{ page_obj.paginator.count }} listing{{ page_obj.paginator.count|pluralize }} found</h2>
+      <a href="{% url 'ads-listing' %}" class="text-primary">Clear search</a>
+    </div>
+    <div class="row">
+      {% for ad in ads_search_result %}
+      <div class="col-sm-6 col-lg-3 mb-4">
+        <article class="h-100 bg-white border rounded overflow-hidden">
+          <a href="{% url 'ads-detail' ad.pk %}" class="d-block" style="height:190px;background:#eef0f5">
+            {% for image in ad.adsimages_set.all %}{% if forloop.first %}
+            <img class="w-100 h-100" style="object-fit:cover" src="{{ image.image.url }}" alt="{{ ad.title }}" onerror="this.style.display='none'">
+            {% endif %}{% empty %}
+            <img class="w-100 h-100" style="object-fit:cover" src="{% static 'images/uploads/2020/09/22/backpack.jpg' %}" alt="">
+            {% endfor %}
+          </a>
+          <div class="p-3">
+            {% if ad.category %}<a class="small text-primary" href="{% url 'category-archive' ad.category.slug %}">{{ ad.category.category_name }}</a>{% endif %}
+            <h3 class="h6 mt-2"><a class="text-dark" href="{% url 'ads-detail' ad.pk %}">{{ ad.title }}</a></h3>
+            <p class="small text-muted mb-2">{{ ad.city|default:"Local pickup" }}{% if ad.state %}, {{ ad.state }}{% endif %}</p>
+            <strong class="text-primary">₹{{ ad.price }}</strong>
+            <span class="float-right small text-muted">{{ ad.condition }}</span>
+          </div>
+        </article>
+      </div>
+      {% empty %}
+      <div class="col-12"><div class="p-5 text-center bg-white border rounded"><h3>No matching listings</h3><p class="text-muted">Try a wider price range, another location, or fewer filters.</p></div></div>
+      {% endfor %}
+    </div>
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Search result pages" class="mt-3"><ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?customword={{ customword|urlencode }}&amp;category_name={{ category_name|urlencode }}&amp;state_name={{ state_name|urlencode }}&amp;city={{ city|urlencode }}&amp;condition={{ condition|urlencode }}&amp;min_price={{ min_price|urlencode }}&amp;max_price={{ max_price|urlencode }}&amp;sort={{ sort|urlencode }}&amp;page={{ page_obj.previous_page_number }}">Previous</a></li>
+      {% endif %}
+      <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+      {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?customword={{ customword|urlencode }}&amp;category_name={{ category_name|urlencode }}&amp;state_name={{ state_name|urlencode }}&amp;city={{ city|urlencode }}&amp;condition={{ condition|urlencode }}&amp;min_price={{ min_price|urlencode }}&amp;max_price={{ max_price|urlencode }}&amp;sort={{ sort|urlencode }}&amp;page={{ page_obj.next_page_number }}">Next</a></li>
+      {% endif %}
+    </ul></nav>
+    {% endif %}
+  </div>
+</section>
+{% endblock content %}

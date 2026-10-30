@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="page-header"><div class="container"><h1 class="product-title">My listings</h1></div></div>
+<section class="section-padding"><div class="container"><div class="row">
+  {% include 'profiles/account-sidebar.html' %}
+  <div class="col-sm-12 col-md-8 col-lg-9">
+    <div class="page-content"><div class="inner-box">
+      <div class="dashboard-box"><h2 class="dashbord-title">Manage your listings</h2></div>
+      <div class="dashboard-wrapper">
+        {% if ads_posted %}
+        <div class="table-responsive">
+          <table class="table dashboardtable tablemyads">
+            <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              {% for ad in ads_posted %}
+              <tr>
+                <td data-title="Item">
+                  {% for image in ad.adsimages_set.all %}{% if forloop.first %}
+                  <img src="{{ image.image.url }}" alt="" style="width:64px;height:54px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'">
+                  {% endif %}{% empty %}
+                  <img src="{% static 'images/uploads/2020/09/22/backpack.jpg' %}" alt="" style="width:64px;height:54px;object-fit:cover;border-radius:8px">
+                  {% endfor %}
+                  <a href="{% url 'ads-detail' ad.pk %}"><strong>{{ ad.title }}</strong></a>
+                  <small class="d-block text-muted">Listed {{ ad.date_created|date:"M j, Y" }}</small>
+                </td>
+                <td data-title="Category">{{ ad.category|default:"Uncategorized" }}</td>
+                <td data-title="Price">₹{{ ad.price }}</td>
+                <td data-title="Status">{{ ad.get_status_display }}</td>
+                <td data-title="Actions">
+                  <a class="btn btn-sm btn-outline-primary mb-1" href="{% url 'ads-edit' ad.pk %}">Edit</a>
+                  {% if ad.status != 'SOLD' and ad.status != 'ARCHIVED' %}
+                  <form method="post" action="{% url 'ads-status-update' ad.pk %}" class="mb-1">
+                    {% csrf_token %}
+                    {% if ad.status == 'DEAL_PENDING' %}
+                    <button class="btn btn-sm btn-outline-primary" name="status" value="ACTIVE">Mark available</button>
+                    {% else %}
+                    <button class="btn btn-sm btn-outline-success" name="status" value="SOLD">Mark sold</button>
+                    {% endif %}
+                  </form>
+                  {% endif %}
+                  {% if ad.status != 'ARCHIVED' %}
+                  <form method="post" action="{% url 'ads-delete' ad.pk %}" onsubmit="return confirm('Archive this listing?')">
+                    {% csrf_token %}<button class="btn btn-sm btn-outline-danger" type="submit">Archive</button>
+                  </form>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5"><h3>No listings yet</h3><p class="text-muted">Post an item to give it a new home.</p><a class="btn btn-common" href="{% url 'post-ads' %}">Create a listing</a></div>
+        {% endif %}
+      </div>
+    </div></div>
+  </div>
+</div></div></section>
+{% endblock content %}

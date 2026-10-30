@@ -1,0 +1,15 @@
+{% include "header.html" %}
+
+{% if messages %}
+<div class="container" style="position:relative;z-index:10000;padding-top:12px">
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}
+
+{% endblock content %}
+
+{% include "footer.html" %}

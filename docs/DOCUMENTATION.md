@@ -79,316 +79,98 @@ flowchart TD
 
 ---
 
-## 3. Core Algorithms & Detailed Pseudocode
+## 3. Real-Time Live Responsive Feed Engine (X1 ➔ X2, X3)
 
-### Algorithm 1: Real-Time Delta Feed Synchronization Engine (X1 $\rightarrow$ X2, X3)
+A core innovation of PreLoved is real-time catalog reactivity: when User X1 uploads a new listing, any active users (User X2, User X3) viewing the catalog see the new product appear automatically within 1 to 2 seconds without having to refresh their web browser.
+
+### Key Architectural Highlights:
+1. **Cursor-Indexed Delta Querying:** Clients only query for items created strictly after their highest known item ID (`ID > Current_Cursor`). This reduces database overhead to a single index-seek query.
+2. **Bandwidth Optimization:** When no new items exist, the server returns an empty 32-byte JSON response, consuming negligible network resources.
+3. **Fluid Entrance Micro-Animation:** When new products arrive, they slide into the top of the product grid using modern CSS cubic-bezier animations, alerting the buyer with an interactive live toast notification.
+4. **Tab Inactivity Throttling:** When a user switches tabs, browser polling automatically suspends via the Page Visibility API, eliminating unnecessary background network traffic.
+
+---
+
+## 4. Core Algorithms & Logical Procedures (No Code Syntax)
+
+### Algorithm 1: Real-Time Live Feed Delta Synchronization Engine
 * **Objective:** Enable Users X2 and X3 to view new listings published by User X1 within 1–2 seconds without browser reloads, while minimizing database load and avoiding UI layout thrashing.
-* **Mechanism:** Cursor-indexed delta querying with client-side optimistic animation queue.
-
-```python
-"""
-ALGORITHM 1: Cursor-Based Live Feed Polling & Batch Injection
-Context: Client Browser (X2, X3) executes interval query to Django API endpoint.
-"""
-
-# Backend Controller Logic (views.py)
-function get_live_feed_delta(request):
-    client_cursor_id = parse_integer(request.GET.get('after_id', default=0))
-    selected_category = request.GET.get('category_id', default=None)
-    selected_city = request.GET.get('city', default=None)
-    
-    # Query only approved, active items created strictly AFTER the client's current max ID
-    delta_query = Listing.objects.filter(
-        id__gt=client_cursor_id,
-        status='ACTIVE',
-        is_flagged_hidden=False
-    ).select_related('seller', 'category').prefetch_related('images').order_by('created_at')
-    
-    if selected_category:
-        delta_query = delta_query.filter(category_id=selected_category)
-    if selected_city:
-        delta_query = delta_query.filter(city__iexact=selected_city)
-        
-    delta_items = delta_query[:20]  # Clamped batch size to prevent flood
-    
-    serialized_payload = []
-    for item in delta_items:
-        serialized_payload.append({
-            "id": item.id,
-            "title": sanitize_html(item.title),
-            "price": float(item.price),
-            "condition": item.condition,
-            "city": item.city,
-            "created_at_human": item.created_at.timesince(),
-            "primary_image_url": item.primary_image.url if item.primary_image else "/static/img/placeholder.webp",
-            "seller_name": item.seller.get_full_name() or item.seller.username,
-            "rendered_card_html": render_to_string("partials/card_feed_item.html", {"listing": item})
-        })
-        
-    new_max_cursor = max([item['id'] for item in serialized_payload], default=client_cursor_id)
-    
-    return JsonResponse({
-        "status": "success",
-        "count": len(serialized_payload),
-        "new_cursor": new_max_cursor,
-        "items": serialized_payload
-    })
-```
-
-```javascript
-/* Client-Side Ingestion & Animation Loop (JavaScript) */
-class LiveFeedEngine {
-    constructor(feedContainerId, pollIntervalMs = 2000) {
-        this.container = document.getElementById(feedContainerId);
-        this.highestCursorId = parseInt(this.container.dataset.initialCursor || 0);
-        this.pollInterval = pollIntervalMs;
-        this.isPollingActive = true;
-        this.init();
-    }
-
-    init() {
-        setInterval(() => this.fetchDelta(), this.pollInterval);
-    }
-
-    async fetchDelta() {
-        if (document.hidden) return; // Tab optimization: throttle when inactive
-        
-        try {
-            const url = `/api/listings/live-feed/?after_id=${this.highestCursorId}`;
-            const response = await fetch(url, { credentials: 'same-origin' });
-            if (!response.ok) return;
-
-            const data = await response.json();
-            if (data.count > 0) {
-                this.injectNewItems(data.items);
-                this.highestCursorId = data.new_cursor;
-            }
-        } catch (error) {
-            console.debug("Feed poll skipped:", error);
-        }
-    }
-
-    injectNewItems(items) {
-        // Items ordered from oldest to newest; prepend in reverse order
-        items.forEach(item => {
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = item.rendered_card_html.trim();
-            const cardEl = wrapper.firstElementChild;
-
-            // Apply Awwwards-style entrance class (CSS slide-fade down)
-            cardEl.classList.add('feed-item-incoming');
-            this.container.prepend(cardEl);
-
-            // Trigger reflow & remove incoming class to start fluid transition
-            requestAnimationFrame(() => {
-                cardEl.classList.add('feed-item-visible');
-            });
-        });
-
-        this.triggerLiveToastAlert(items.length);
-    }
-
-    triggerLiveToastAlert(count) {
-        const toast = document.getElementById('live-feed-toast');
-        if (toast) {
-            toast.textContent = `⚡ ${count} new item(s) listed just now!`;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3500);
-        }
-    }
-}
-```
+* **Inputs:** Client Cursor ID (integer), Category Filter (optional), City Filter (optional).
+* **Outputs:** Array of newly published listings, Updated Cursor ID, Dynamic DOM Card Ingestion.
+* **Procedural Execution Steps:**
+  1. **Client Cursor Initialization:** Upon page load, the client browser parses the highest listing ID present in the initial server-rendered grid and initializes the tracking cursor variable (`Current_Cursor`).
+  2. **Inactivity & Tab State Verification:** Before initiating a scheduled query, the client checks the Page Visibility API. If the browser tab is minimized or hidden, the poll is skipped to conserve system resources.
+  3. **Asynchronous Delta Query Formulation:** At regular 2-second intervals, the client transmits an asynchronous request to the feed endpoint, passing the `Current_Cursor` along with any active category and city filter parameters.
+  4. **Server-Side Index Seek:** The backend server queries the listings database using an indexed condition: ID strictly greater than `Current_Cursor`, status equals `ACTIVE`, and moderation flag equals false.
+  5. **Batch Clamping & Normalization:** The server clamps the matched records to a maximum batch size of 20 items to prevent network saturation and serializes the listing metadata (title, price, condition, city, seller name, image URL).
+  6. **Response Assembly & Cursor Advancement:** The server calculates the new maximum ID from the batch. If new items exist, it returns the items array along with the `New_Cursor`; otherwise, it returns an empty payload.
+  7. **Client DOM Prepending & Animation Trigger:** The client browser iterates through the received items in reverse chronological order, constructs the card structure, prepends it to the top of the grid, and applies an entrance transition animation.
+  8. **Live Alert Notification:** The client updates its tracking cursor to `New_Cursor` and triggers a temporary floating toast alert notifying the user of newly arrived items.
 
 ---
 
-### Algorithm 2: Multi-Factor Relevance & Location Ranking Algorithm
-* **Objective:** Enable Buyers to filter across Categories, Price Sliders, City, and Condition with fast keyword ranking.
-
-```python
-"""
-ALGORITHM 2: Multi-Factor Product Filtering & Score-Ranked Catalog Search
-"""
-function search_and_filter_listings(params):
-    base_qs = Listing.objects.filter(status='ACTIVE', is_flagged_hidden=False)
-
-    # 1. Exact Categorical & Geographic Constraints
-    if params.get('category_slug'):
-        base_qs = base_qs.filter(category__slug=params['category_slug'])
-    if params.get('city'):
-        base_qs = base_qs.filter(city__iexact=params['city'])
-    if params.get('condition'):
-        base_qs = base_qs.filter(condition=params['condition'])
-
-    # 2. Continuous Numeric Range Bounds
-    if params.get('min_price'):
-        base_qs = base_qs.filter(price__gte=Decimal(params['min_price']))
-    if params.get('max_price'):
-        base_qs = base_qs.filter(price__lte=Decimal(params['max_price']))
-
-    # 3. Text Relevance Weighting (Title = 3x, Description = 1x)
-    query_string = params.get('q', '').strip()
-    if query_string:
-        keywords = query_string.split()
-        title_q = Q()
-        desc_q = Q()
-        for kw in keywords:
-            title_q |= Q(title__icontains=kw)
-            desc_q |= Q(description__icontains=kw)
-
-        base_qs = base_qs.filter(title_q | desc_q).annotate(
-            relevance_score=(
-                Case(When(title_q, then=Value(3)), default=Value(0), output_field=IntegerField()) +
-                Case(When(desc_q, then=Value(1)), default=Value(0), output_field=IntegerField())
-            )
-        ).order_by('-relevance_score', '-created_at')
-    else:
-        # Default sort order: Recent listings first
-        sort_choice = params.get('sort', 'newest')
-        if sort_choice == 'price_low_high':
-            base_qs = base_qs.order_by('price')
-        elif sort_choice == 'price_high_low':
-            base_qs = base_qs.order_by('-price')
-        else:
-            base_qs = base_qs.order_by('-created_at')
-
-    return base_qs
-```
+### Algorithm 2: Multi-Factor Catalog Search, Relevance Scoring & Spatial Filtering
+* **Objective:** Provide fast, accurate, and multi-criteria product discovery combining full-text relevance, categorical boundaries, and geographic locality.
+* **Inputs:** Keyword query string, Category slug, Minimum/Maximum price boundaries, Condition array, Target city, Sort preference.
+* **Outputs:** Ranked, filtered, and paginated list of matching product listings.
+* **Procedural Execution Steps:**
+  1. **Base Candidate Filtering:** Retrieve the initial universe of listings restricted strictly to records with status equal to `ACTIVE` and visibility flag set to true.
+  2. **Exact Attribute Partitioning:** Apply categorical and geographic filters. If a category slug is specified, filter by exact category match; if a city is provided, filter using case-insensitive match.
+  3. **Continuous Numeric Boundary Clamping:** Enforce price bounds. If minimum price is defined, constrain price $\ge$ minimum; if maximum price is defined, constrain price $\le$ maximum.
+  4. **Condition State Filtering:** If specific item conditions (e.g., 'Brand New', 'Like New') are selected by the buyer, filter records matching the requested condition tags.
+  5. **Search String Tokenization:** If a keyword query is provided, sanitize and tokenize the search string into individual alphanumeric terms, discarding common stop words.
+  6. **Multi-Field Weighted Relevance Scoring:** Evaluate each record against the search tokens: Title matches are assigned a weight factor of 3.0, while Description matches are assigned a weight factor of 1.0. Compute the composite relevance score for each candidate.
+  7. **Hierarchical Multi-Criteria Sorting:** Sort the qualified candidate set: If relevance search is active, order primarily by descending relevance score, secondarily by creation date. If user selected explicit price sorting, order by price ascending or descending.
+  8. **Deterministic Pagination Slicing:** Apply pagination offsets (default: 16 items per page) to yield consistent, high-performance catalog results.
 
 ---
 
-### Algorithm 3: Offer & Negotiation State Machine (Finite State Automaton)
-
-The Offer Negotiation lifecycle guarantees that once a seller accepts an offer, competing pending offers are flagged and item status updates without race conditions.
-
-```mermaid
-stateDiagram-v2
-    [*] --> PENDING: Buyer Submits Price Offer
-    
-    state PENDING {
-        [*] --> WaitingForSeller
-    }
-
-    PENDING --> REJECTED: Seller Rejects Offer
-    PENDING --> COUNTERED: Seller Proposes Counter-Offer
-    PENDING --> ACCEPTED: Seller Accepts Offer
-    PENDING --> CANCELLED: Buyer Withdraws Offer
-
-    COUNTERED --> ACCEPTED: Buyer Accepts Counter
-    COUNTERED --> REJECTED: Buyer Rejects Counter
-    COUNTERED --> CANCELLED: Buyer Cancels
-
-    ACCEPTED --> TRANSACTION_DEAL: In-Person Meetup & Agreement
-    TRANSACTION_DEAL --> SOLD: Seller Marks Item as Sold
-
-    SOLD --> [*]: Item Archived & Review Unlocked
-    REJECTED --> [*]
-    CANCELLED --> [*]
-```
-
-#### State Transition Validation Logic:
-1. **Rule 1 (Price Sanity):** An offer must satisfy `0.10 * listing.price <= offer.amount <= 1.50 * listing.price`.
-2. **Rule 2 (Anti-Self Dealing):** A user cannot submit an offer on their own listing (`buyer != seller`).
-3. **Rule 3 (Exclusivity on Acceptance):** When an offer transitions to `ACCEPTED`:
-   * Listing status updates from `ACTIVE` to `DEAL_PENDING`.
-   * All other `PENDING` offers on that listing receive an automated system notice: `"Another offer has been accepted"`.
-4. **Rule 4 (Mark as Sold Closure):** When the listing transitions to `SOLD`:
-   * All non-accepted offers transition to `EXPIRED`.
-   * Listing is delisted from live public feeds.
+### Algorithm 3: Price Offer Negotiation Finite State Automaton (FSM)
+* **Objective:** Enforce transactional consistency, eliminate race conditions, and govern the formal price negotiation lifecycle between buyers and sellers.
+* **Inputs:** Buyer identity, Listing reference, Proposed purchase amount, Seller decision action.
+* **Outputs:** Deterministic state transition (`PENDING` $\rightarrow$ `ACCEPTED` / `REJECTED` / `CANCELLED` $\rightarrow$ `SOLD` / `EXPIRED`).
+* **Procedural Execution Steps:**
+  1. **Offer Inception & Self-Dealing Guard:** A registered buyer submits a price offer for an active listing. The system verifies that the buyer is not the seller of the item; self-offers are strictly rejected.
+  2. **Price Sanity & Boundary Validation:** The proposed amount must fall within logical boundaries: minimum 10% of the listed price and maximum 150% of the listed price to prevent negative or absurd values.
+  3. **Pending State Assignment:** The offer is registered with status `PENDING`, and an automated alert is routed to the seller's notifications and active chat thread.
+  4. **Seller Evaluation & Branching Decision:** The seller reviews the offer and selects one of three actions: Accept, Reject, or Propose Counter-Offer.
+  5. **Transition to 'ACCEPTED' State:** If the seller accepts: The offer status updates to `ACCEPTED`. The listing status automatically updates from `ACTIVE` to `DEAL_PENDING` to prevent duplicate offers. All other competing pending offers receive an automated notification.
+  6. **Transition to 'REJECTED' State:** If the seller rejects: The offer status updates to `REJECTED`. The listing remains `ACTIVE` for other prospective buyers.
+  7. **Buyer Withdrawal Transition:** Prior to seller acceptance, the buyer retains the right to withdraw the offer, transitioning the state to `CANCELLED`.
+  8. **Final Deal Closure ('SOLD' Transition):** Following physical inspection and handoff, the seller clicks 'Mark as Sold'. The listing transitions to `SOLD`, all remaining pending or countered offers transition to `EXPIRED`, and the item is permanently delisted from live discovery feeds.
 
 ---
 
-### Algorithm 4: Automated Moderation & Risk Scoring Pipeline
-* **Objective:** Prevent prohibited items (counterfeit goods, prohibited substances, harassment, spam) and automatically shield users before manual administrator intervention.
-
-```python
-"""
-ALGORITHM 4: Automated Moderation & Report Risk Velocity
-"""
-BLOCKED_KEYWORDS = ["stolen", "fake", "replica", "weapons", "drugs", "counterfeit", "passport"]
-
-function evaluate_listing_risk(listing):
-    risk_score = 0
-    text_corpus = (listing.title + " " + listing.description).lower()
-
-    # 1. Prohibited Dictionary Scan
-    for word in BLOCKED_KEYWORDS:
-        if word in text_corpus:
-            risk_score += 50
-
-    # 2. Anomalous Price Heuristic (e.g., iPhone 15 listed for Rs. 500)
-    if "iphone" in text_corpus and listing.price < 2000:
-        risk_score += 30
-
-    # 3. New User Multiplier
-    if listing.seller.listings.count() == 0:
-        risk_score += 10
-
-    if risk_score >= 50:
-        listing.is_flagged_hidden = True
-        listing.moderation_status = 'UNDER_REVIEW'
-        Report.objects.create(
-            listing=listing,
-            reported_by=User.get_sentinel_bot(),
-            reason="AUTO_FLAGGED_HIGH_RISK_SCORE",
-            details=f"System flagged listing with automated risk score: {risk_score}"
-        )
-    else:
-        listing.moderation_status = 'APPROVED'
-    
-    listing.save()
-```
+### Algorithm 4: Automated Image Optimization & EXIF Privacy Sanitization Pipeline
+* **Objective:** Standardize user-submitted photos, reduce storage overhead, accelerate page load speeds, and permanently strip sensitive GPS location metadata.
+* **Inputs:** Raw multipart image upload stream from user browser/mobile device.
+* **Outputs:** Sanitized, oriented, Lanczos-scaled, compressed WebP image stored with UUID identifier.
+* **Procedural Execution Steps:**
+  1. **Binary Stream Verification:** Receive user-uploaded image stream and verify header magic bytes to ensure file is an authentic raster graphic (JPEG, PNG, WebP) and not an executable binary.
+  2. **EXIF Orientation Transpose:** Read camera metadata orientation tags (EXIF tag 274) and rotate the image pixel matrix accordingly so mobile camera photos render upright.
+  3. **Privacy & Geolocation Scrubbing:** Strip all embedded EXIF metadata, including GPS coordinates, camera serial numbers, and capture timestamps, completely shielding user location privacy.
+  4. **Color Space Standardisation:** Examine image mode. If RGBA or Palette mode is detected, convert the matrix to standard 24-bit sRGB color space to ensure cross-browser rendering fidelity.
+  5. **Proportional Dimension Clamping:** Evaluate pixel dimensions. If width exceeds 1440px or height exceeds 1080px, calculate the aspect-ratio preserved scaling factor and downscale the image using high-quality Lanczos resampling.
+  6. **Modern WebP Lossy Compression:** Encode the normalized image into modern WebP format utilizing 82% quality target with dynamic Huffman coding, typically reducing file size by 65-80% compared to raw JPEG.
+  7. **Secure In-Memory Buffer Re-Encapsulation:** Assign a cryptographically secure UUIDv4 filename, package the compressed binary into an in-memory file structure, and commit to local media directory storage.
 
 ---
 
-### Algorithm 5: Multi-Format Image Optimization & EXIF Privacy Pipeline
-* **Objective:** Strip sensitive geographic metadata (GPS coordinates from mobile camera photos) to protect user location privacy, while compressing image sizes to guarantee fast loading speeds.
-
-```python
-"""
-ALGORITHM 5: Secure Image Sanitization & Compression Pipeline
-Using Python Pillow (PIL)
-"""
-from PIL import Image, ImageOps
-import io
-from django.core.files.uploadedfile import InMemoryUploadedFile
-
-function process_listing_image(uploaded_file):
-    # 1. Open with Pillow
-    img = Image.open(uploaded_file)
-    
-    # 2. Fix orientation based on camera EXIF, then strip ALL EXIF (GPS, Camera ID)
-    img = ImageOps.exif_transpose(img)
-    
-    # 3. Convert RGBA / Palette mode to RGB for standardized WebP/JPEG encoding
-    if img.mode in ("RGBA", "P"):
-        img = img.convert("RGB")
-        
-    # 4. Clamped Resizing (Max bounding box: 1440px x 1080px)
-    max_dims = (1440, 1080)
-    img.thumbnail(max_dims, Image.Resampling.LANCZOS)
-    
-    # 5. Compress to modern WebP format at 82% quality
-    output_buffer = io.BytesIO()
-    img.save(output_buffer, format="WEBP", quality=82, optimize=True)
-    output_buffer.seek(0)
-    
-    # 6. Re-encapsulate into Django UploadedFile object
-    sanitized_file = InMemoryUploadedFile(
-        file=output_buffer,
-        field_name='image',
-        name=uploaded_file.name.rsplit('.', 1)[0] + '.webp',
-        content_type='image/webp',
-        size=output_buffer.getbuffer().nbytes,
-        charset=None
-    )
-    return sanitized_file
-```
+### Algorithm 5: Automated Content Moderation & Abuse Scoring Heuristics
+* **Objective:** Protect the marketplace against counterfeit goods, spam, prohibited items, and malicious actors through automated risk detection and community velocity triggers.
+* **Inputs:** Listing text corpus, Listed price, Seller transaction history, User report logs.
+* **Outputs:** Numerical Risk Score, Automated Visibility Status (Active / Hidden Under Review), Admin Moderation Queue Entry.
+* **Procedural Execution Steps:**
+  1. **Text Corpus Extraction & Normalization:** Combine listing title and description into a unified text string, convert all characters to lowercase, and strip punctuation marks.
+  2. **Prohibited Lexicon Scanning:** Iterate through the platform's prohibited term dictionary (counterfeits, weapons, illicit substances, stolen goods). Each occurrence increments the listing's Risk Score by 50 points.
+  3. **Price Anomaly Heuristic Evaluation:** Cross-reference detected high-value item keywords (e.g., flagship mobile phones) against listed asking prices. An asking price below 10% of typical market baseline increments the Risk Score by 30 points.
+  4. **Seller Trust & Maturity Factor:** Examine seller account age and completed sales volume. A newly created account listing high-value items on day one increments the Risk Score by 10 points.
+  5. **Automated Threshold Action:** If the composite Risk Score meets or exceeds 50 points, the system automatically sets the listing's visibility flag to false (hidden from public catalog) and queues an urgent incident in the Admin Moderation Hub.
+  6. **Community Velocity Trigger:** Continuously monitor user report counts. If any active listing receives 3 or more independent reports from verified user accounts within a 24-hour window, the listing is automatically hidden from public search pending staff resolution.
 
 ---
 
-## 4. End-to-End System Workflows
-
-### 4.1 Seller Journey: Listing Publishing & Status Lifecycle
+## 5. End-to-End System Workflows
 
 ```mermaid
 sequenceDiagram
@@ -402,91 +184,24 @@ sequenceDiagram
 
     Seller->>Web: Navigate to /listings/create/
     Web->>Seller: Display Listing Wizard Form (Title, Price, Condition, Category, Photos)
-    Seller->>Web: Submit Form with 3 Photos
-    Web->>App: POST /listings/create/ (Multipart/form-data)
+    Seller->>Web: Submit Form with Photos
+    Web->>App: Transmit Form (Multipart Data)
     App->>Img: Strip EXIF (Privacy), Resize & Compress to WebP
     Img-->>App: Return Sanitized Binary Files
-    App->>DB: INSERT into Listing & ListingImages (status='ACTIVE')
-    App-->>Web: Redirect to /listings/<slug>/ (HTTP 302)
+    App->>DB: Record Listing & ListingImages (status='ACTIVE')
+    App-->>Web: Redirect to Product Detail View
     
     Note over App,Buyers: Within 1-2 Seconds via Live Polling Engine
-    Buyers->>App: GET /api/listings/live-feed/?after_id=LastId
-    App->>DB: SELECT * WHERE id > LastId AND status='ACTIVE'
+    Buyers->>App: Query Live Delta Feed (after_id=LastId)
+    App->>DB: Query Active Records where ID > LastId
     DB-->>App: Return User X1's Listing
-    App-->>Buyers: JSON Payload with Rendered Card HTML
+    App-->>Buyers: Deliver New Listing Payload
     Buyers->>Buyers: Animate New Product Card into Marketplace Grid
-```
-
-### 4.2 Buyer Journey: Discovery, Chat & Offer Negotiation
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Buyer as User X2 (Buyer)
-    participant Web as Buyer Browser
-    participant App as Django Server
-    participant DB as SQLite Database
-    actor Seller as User X1 (Seller)
-
-    Buyer->>Web: Browse / Explore Listings with Filter (Category, Price Slider)
-    Web->>App: GET /listings/?category=mobiles&max_price=25000
-    App-->>Web: Filtered Results Grid
-    Buyer->>Web: Click "Save to Wishlist"
-    Web->>App: POST /api/listings/<id>/toggle-wishlist/
-    App->>DB: INSERT/DELETE Wishlist Record
-    App-->>Web: JSON { saved: true, total_count: 5 }
-    
-    Buyer->>Web: Open Chat & Send Price Offer (e.g., Offer Rs. 18,000 for Rs. 20,000 item)
-    Web->>App: POST /listings/<id>/offers/create/ { amount: 18000 }
-    App->>DB: INSERT into Offer (status='PENDING')
-    App->>DB: INSERT into Message (sender=Buyer, text="Submitted an offer: Rs. 18,000")
-    App-->>Seller: Notification / Chat Alert ("New Offer Received")
-
-    Seller->>App: POST /offers/<offer_id>/action/ { action: 'ACCEPT' }
-    App->>DB: UPDATE Offer SET status='ACCEPTED'
-    App->>DB: UPDATE Listing SET status='DEAL_PENDING'
-    App-->>Buyer: Real-time Offer Accepted Alert
-    Note over Buyer,Seller: Meet in Person, Verify Condition, Complete Payment
-    Seller->>App: POST /listings/<id>/mark-sold/
-    App->>DB: UPDATE Listing SET status='SOLD'
-```
-
-### 4.3 Administrator Journey: Governance & Moderation
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as Any User
-    participant App as Django Platform
-    participant DB as Database
-    actor Admin as Marketplace Admin
-
-    User->>App: Click "Report Listing" (Spam/Prohibited/Fake)
-    App->>DB: INSERT into Report (listing, reporter, reason, details)
-    
-    alt Report Count >= 3
-        App->>DB: Set Listing is_flagged_hidden=True
-        Note over App: Automatically concealed from public discovery
-    end
-
-    Admin->>App: Open /admin-portal/moderation/
-    App->>DB: SELECT * FROM Report WHERE is_resolved=False
-    DB-->>Admin: Show Reported Items & Audit Log
-    
-    alt Action: Remove Listing & Sanction Seller
-        Admin->>App: POST /admin-portal/reports/<id>/sanction/ { action: 'BAN_USER' }
-        App->>DB: UPDATE User SET is_active=False
-        App->>DB: UPDATE Listing SET status='BANNED'
-        App-->>Admin: Confirmation: User Blocked & Listings Removed
-    else Action: Dismiss False Report
-        Admin->>App: POST /admin-portal/reports/<id>/resolve/ { action: 'DISMISS' }
-        App->>DB: UPDATE Report SET is_resolved=True
-    end
 ```
 
 ---
 
-## 5. Comprehensive Database Entity Relationship Diagram (ERD)
+## 6. Comprehensive Database Entity Relationship Diagram (ERD)
 
 ```mermaid
 erDiagram
@@ -611,94 +326,13 @@ erDiagram
 
 ---
 
-## 6. Complete Data Dictionary
-
-### 6.1 `users_customuser`
-| Field Name | Type | Null/Blank | Default | Constraints / Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | BigAutoField | No | Auto | Primary Key |
-| `username` | CharField(150) | No | None | Unique username |
-| `email` | EmailField(254) | No | None | Unique login & communication email |
-| `phone_number` | CharField(15) | Yes / Yes | None | Contact for WhatsApp / SMS negotiations |
-| `city` | CharField(100) | No | 'Ahmedabad' | Primary geographical trading city |
-| `avatar` | ImageField | Yes / Yes | 'avatars/default.png' | Profile display picture (processed by Pillow) |
-| `is_blocked` | BooleanField | No | False | Admin suspension lock |
-| `date_joined` | DateTimeField | No | timezone.now | Account registration timestamp |
-
-### 6.2 `listings_category`
-| Field Name | Type | Null/Blank | Default | Constraints / Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | AutoField | No | Auto | Primary Key |
-| `name` | CharField(100) | No | None | e.g., "Mobiles", "Laptops", "Books", "Furniture" |
-| `slug` | SlugField(120) | No | None | Unique URL slug |
-| `icon_svg` | CharField(100) | No | 'bi-tag' | Bootstrap Icons identifier class |
-| `is_active` | BooleanField | No | True | Category visibility toggle |
-
-### 6.3 `listings_listing`
-| Field Name | Type | Null/Blank | Default | Constraints / Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | BigAutoField | No | Auto | Primary Key (used as cursor for live delta) |
-| `seller_id` | ForeignKey(User) | No | None | Cascades on User Delete |
-| `category_id`| ForeignKey(Category)| No | None | Protected on Delete |
-| `title` | CharField(200) | No | None | Descriptive item headline |
-| `slug` | SlugField(250) | No | None | Unique SEO slug |
-| `description`| TextField | No | None | Detailed specifications & wear details |
-| `price` | DecimalField(10,2)| No | None | Listed asking price in INR (Rs.) |
-| `condition` | CharField(20) | No | 'GOOD' | Choices: `BRAND_NEW`, `LIKE_NEW`, `GOOD`, `FAIR` |
-| `city` | CharField(100) | No | None | City location for local handoff |
-| `status` | CharField(20) | No | 'ACTIVE' | Choices: `ACTIVE`, `DEAL_PENDING`, `SOLD`, `ARCHIVED` |
-| `is_flagged_hidden` | BooleanField | No | False | Hide flag for flagged items under review |
-| `view_count` | PositiveIntegerField| No | 0 | Engagement counter |
-| `created_at` | DateTimeField | No | timezone.now | Index for feed ordering |
-
-### 6.4 `listings_listingimage`
-| Field Name | Type | Null/Blank | Default | Constraints / Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | BigAutoField | No | Auto | Primary Key |
-| `listing_id` | ForeignKey(Listing)| No | None | Cascade Delete on Listing |
-| `image` | ImageField | No | None | Compressed `.webp` storage path |
-| `is_primary` | BooleanField | No | False | Primary thumbnail displayed in grid |
-
-### 6.5 `trading_offer`
-| Field Name | Type | Null/Blank | Default | Constraints / Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | BigAutoField | No | Auto | Primary Key |
-| `listing_id` | ForeignKey(Listing)| No | None | Cascade on Listing Delete |
-| `buyer_id` | ForeignKey(User) | No | None | Submitting Buyer User |
-| `amount` | DecimalField(10,2)| No | None | Proposed purchase price |
-| `status` | CharField(20) | No | 'PENDING' | Choices: `PENDING`, `ACCEPTED`, `REJECTED`, `EXPIRED`, `CANCELLED` |
-| `created_at` | DateTimeField | No | timezone.now | Submission timestamp |
-
-### 6.6 `chat_message`
-| Field Name | Type | Null/Blank | Default | Constraints / Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | BigAutoField | No | Auto | Primary Key |
-| `listing_id` | ForeignKey(Listing)| No | None | Association to product thread |
-| `sender_id` | ForeignKey(User) | No | None | Author of message |
-| `receiver_id`| ForeignKey(User) | No | None | Target recipient |
-| `body` | TextField | No | None | Text content |
-| `is_read` | BooleanField | No | False | Read receipt tracking |
-| `timestamp` | DateTimeField | No | timezone.now | Message timestamp |
-
-### 6.7 `moderation_report`
-| Field Name | Type | Null/Blank | Default | Constraints / Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | BigAutoField | No | Auto | Primary Key |
-| `listing_id` | ForeignKey(Listing)| No | None | Target reported listing |
-| `reported_by`| ForeignKey(User) | No | None | Reporter User |
-| `reason` | CharField(50) | No | None | `FAKE_ITEM`, `PROHIBITED`, `SPAM`, `HARASSMENT` |
-| `details` | TextField | Yes / Yes | None | Supporting user complaint text |
-| `is_resolved`| BooleanField | No | False | Admin resolution flag |
-
----
-
 ## 7. REST & Real-Time API Endpoint Catalog
 
 | Method | Endpoint | Access | Purpose & Request / Response Contract |
 | :--- | :--- | :--- | :--- |
 | **GET** | `/api/v1/feed/live/` | Public | **Cursor Delta Live Feed**<br>Query: `?after_id=45&category=2`<br>Response: `{ "count": 1, "new_cursor": 46, "items": [...] }` |
 | **GET** | `/api/v1/listings/` | Public | **Catalog Filter & Search**<br>Query: `?q=iphone&min_price=10000&city=Ahmedabad`<br>Response: Paginated array of listing objects |
-| **POST**| `/api/v1/listings/create/`| Auth | **Create New Listing**<br>Body: `multipart/form-data` with fields & image files |
+| **POST**| `/api/v1/listings/create/`| Auth | **Create New Listing**<br>Body: Multipart form data with fields & image files |
 | **POST**| `/api/v1/listings/<id>/wishlist/`| Auth | **Toggle Saved Item**<br>Response: `{ "favorited": true, "total_wishlist": 4 }` |
 | **POST**| `/api/v1/listings/<id>/offers/`| Auth | **Submit Price Offer**<br>Body: `{ "amount": 15000.00 }`<br>Response: `{ "offer_id": 12, "status": "PENDING" }` |
 | **POST**| `/api/v1/offers/<id>/respond/`| Seller | **Accept / Reject Offer**<br>Body: `{ "decision": "ACCEPT" }`<br>Response: `{ "status": "ACCEPTED", "deal_pending": true }` |
@@ -709,90 +343,12 @@ erDiagram
 
 ---
 
-## 8. UI/UX Design System Specification (21st.dev & Awwwards Aesthetic)
+## 8. 5-Day Delivery Schedule & Milestones Tracker
 
-To stand out like modern award-winning applications (such as 21st.dev and Awwwards honorees), the PreLoved UI rejects clunky default forms in favor of clean, micro-animated minimalism:
-
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│  ⚡ PRELOVED       [🔍 Search mobiles, books...]      Wishlist (3)  👤 │
-├────────────────────────────────────────────────────────────────────────┤
-│  Categories: [📱 Mobiles]  [💻 Laptops]  [📚 Books]  [🛋️ Furniture]    │
-├────────────────────────────────────────────────────────────────────────┤
-│  ⚡ LIVE MARKETPLACE FEED                                              │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐     │
-│  │ [Image - WebP]   │  │ [Image - WebP]   │  │ [Image - WebP]   │     │
-│  │ iPhone 13 128GB  │  │ Ergonomic Desk   │  │ Clean Code Book  │     │
-│  │ ₹ 34,999  • Like │  │ ₹ 4,500  • Good  │  │ ₹ 450  • Fair    │     │
-│  │ 📍 Ahmedabad     │  │ 📍 Surat         │  │ 📍 Vadodara      │     │
-│  │ [Make Offer] [♡] │  │ [Make Offer] [♡] │  │ [Make Offer] [♡] │     │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘     │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
-### 8.1 Design Tokens & Color Palette
-* **Background Canvas:** `#090D16` (Deep Midnight Obsidian) or `#F8FAFC` (Clean Crisp Ceramic Light Mode).
-* **Card Surface:** Glassmorphic translucent surface `rgba(255, 255, 255, 0.7)` with `backdrop-filter: blur(16px)` and subtle `1px solid rgba(226, 232, 240, 0.8)` border.
-* **Accent Primary:** `#4F46E5` (Electric Indigo) with hover state `#4338CA`.
-* **Accent Success / Live Glow:** `#10B981` (Emerald Glow) with pulsing CSS keyframe animation for the live feed indicator.
-* **Warning / Condition Pill:** Amber `#F59E0B` for Good/Fair condition tags.
-
-### 8.2 Micro-Interactions & Animation Specs
-1. **Live Feed Card Insertion:**
-   ```css
-   @keyframes liveCardSlideDown {
-       0% {
-           opacity: 0;
-           transform: translateY(-24px) scale(0.96);
-       }
-       100% {
-           opacity: 1;
-           transform: translateY(0) scale(1);
-       }
-   }
-   .feed-item-incoming {
-       animation: liveCardSlideDown 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-   }
-   ```
-2. **Live Heart Wishlist Ripple:** Instant optimistic state toggle with a 1.25x scale bounce on click.
-3. **Skeleton Shimmer Loading:** Subtle linear-gradient shimmer on image placeholders before WebP frames hydrate.
-
----
-
-## 9. Security, Sanitization & Performance Guardrails
-
-1. **CSRF Enforcement:** All state-mutating requests (POST, PUT, DELETE) mandate the Django `csrf_token` in headers (`X-CSRFToken`).
-2. **Media Path Hardening:** User-uploaded file names are sanitized using UUIDv4 hashes to prevent path traversal (`../../etc/passwd`) attacks.
-3. **MIME Type Validation:** Magic byte inspection prevents executable binaries (`.exe`, `.sh`) disguised with image extensions (`.png`) from reaching storage.
-4. **SQL Injection Resistance:** 100% of queries use Django ORM parameter binding; no raw SQL concatenations.
-5. **XSS Protection:** All template contexts escape outputs automatically; chat messages are sanitized with strict plain-text escaping.
-6. **Rate Limiting:** IP/User-based throttling limits offer submissions to maximum 10 offers per 5-minute window to eliminate bot harassment.
-
----
-
-## 10. 5-Day Delivery Schedule & Milestones Tracker
-
-```mermaid
-gantt
-    title GigBridge PreLoved 5-Day Delivery Roadmap
-    dateFormat  YYYY-MM-DD
-    section Day 1: Documentation
-    SRS, ERD & Architecture Docs       :done,    d1_1, 2026-10-23, 1d
-    Algorithms & API Wire Specs        :done,    d1_2, 2026-10-23, 1d
-    section Day 2: Core Platform
-    Django Project & Models Setup      :active,  d2_1, 2026-10-24, 1d
-    Pillow Image Pipeline & Auth       :active,  d2_2, 2026-10-24, 1d
-    Admin Moderation Hub               :         d2_3, 2026-10-24, 1d
-    section Day 3: Marketplace Engine
-    Seller Studio & Image Uploads      :         d3_1, 2026-10-25, 1d
-    Search, Category & Price Filters   :         d3_2, 2026-10-25, 1d
-    Wishlist Engine                    :         d3_3, 2026-10-25, 1d
-    section Day 4: Real-Time & Chat
-    Live Responsive Feed (X1->X2,X3)   :         d4_1, 2026-10-26, 1d
-    Buyer-Seller Chat Engine           :         d4_2, 2026-10-26, 1d
-    Price Offer Negotiation System     :         d4_3, 2026-10-26, 1d
-    section Day 5: Polish & Deployment
-    Awwwards-style UI / UX Polish      :         d5_1, 2026-10-27, 1d
-    E2E Verification & Mock Testing    :         d5_2, 2026-10-27, 1d
-    Git Remote Push to GitHub          :         d5_3, 2026-10-27, 1d
-```
+| Day | Strategic Milestone | Expected Deliverables & Outputs | Status |
+| :---: | :--- | :--- | :---: |
+| **Day 1** | **System Documentation & Architecture** | Complete SRS, database ERD, theoretical algorithms, live feed engine specifications, API contracts, and formatted Word document deliverable. | ✅ **Completed** |
+| **Day 2** | **Core Platform, Data Models & Admin Governance** | Django project structure setup, Custom User model, Category and Listing models, Pillow image processing pipeline, and admin moderation hub. | ⏳ Scheduled |
+| **Day 3** | **Marketplace Catalog, Search & Listing Studio** | Seller multi-photo listing submission studio, keyword search engine, dynamic price sliders, condition filters, and wishlist module. | ⏳ Scheduled |
+| **Day 4** | **Live Responsive Feed, Chat & Negotiations** | Implementation of the real-time live feed engine (1-2s delay X1 ➔ X2, X3), 1-on-1 buyer-seller direct messaging, and price offer negotiation state machine. | ⏳ Scheduled |
+| **Day 5** | **UI Polish, Verification & Final Deployment** | 21st.dev/Awwwards visual refinement, cross-browser multi-user simulation testing, final validation, and code push to GitHub once permissions are confirmed. | ⏳ Scheduled |

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="page-header"><div class="container"><h1 class="product-title">Saved listings</h1></div></div>
+<section class="section-padding"><div class="container"><div class="row">
+  {% include 'profiles/account-sidebar.html' %}
+  <div class="col-sm-12 col-md-8 col-lg-9">
+    <div class="page-content"><div class="inner-box">
+      <div class="dashboard-box"><h2 class="dashbord-title">Your wishlist</h2></div>
+      <div class="dashboard-wrapper">
+        {% if favorites %}
+        <div class="table-responsive">
+          <table class="table dashboardtable tablemyads">
+            <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Action</th></tr></thead>
+            <tbody>
+              {% for favorite in favorites %}
+              <tr>
+                <td data-title="Item">
+                  {% for image in favorite.ad.adsimages_set.all %}{% if forloop.first %}
+                  <img src="{{ image.image.url }}" alt="" style="width:64px;height:54px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'">
+                  {% endif %}{% empty %}
+                  <img src="{% static 'images/uploads/2020/09/22/backpack.jpg' %}" alt="" style="width:64px;height:54px;object-fit:cover;border-radius:8px">
+                  {% endfor %}
+                  <a href="{% url 'ads-detail' favorite.ad.pk %}"><strong>{{ favorite.ad.title }}</strong></a>
+                  <small class="d-block text-muted">Saved {{ favorite.created_at|date:"M j, Y" }}</small>
+                </td>
+                <td data-title="Category">{{ favorite.ad.category|default:"Uncategorized" }}</td>
+                <td data-title="Price">₹{{ favorite.ad.price }}</td>
+                <td data-title="Action">
+                  <a class="btn btn-sm btn-outline-primary" href="{% url 'ads-detail' favorite.ad.pk %}">View</a>
+                  <form method="post" action="{% url 'favorite-remove' favorite.ad.pk %}" class="d-inline">
+                    {% csrf_token %}<button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5"><h3>Your wishlist is empty</h3><p class="text-muted">Save listings that you would like to come back to.</p><a class="btn btn-common" href="{% url 'ads-listing' %}">Explore listings</a></div>
+        {% endif %}
+      </div>
+    </div></div>
+  </div>
+</div></div></section>
+{% endblock content %}

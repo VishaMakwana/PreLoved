@@ -8,10 +8,10 @@
 
 **PreLoved** is a modern, responsive, hyper-local consumer-to-consumer marketplace. It empowers community members to buy and sell pre-owned items transparently and quickly.
 
-### 🚀 Groundbreaking Feature: Real-Time Live Responsive Feed (X1 ➔ X2, X3)
-* **Instant Item Discovery:** When User **X1** publishes a new product listing, User **X2** and User **X3** browsing the catalog see the new product slide onto their screens **within 1 to 2 seconds** without needing to refresh or press F5.
-* **Non-intrusive Live Toast & Animation:** Smooth entrance micro-animations ensure the user's browsing position is never disrupted.
-* **Optimized Cursor Polling & WebSocket Architecture:** Efficient bandwidth consumption with sub-millisecond database queries.
+### 🚀 Live marketplace feed
+* **Automatic discovery:** New public listings are polled every two seconds without a page refresh.
+* **Non-intrusive updates:** New cards are added with a short animation and a live-feed notice.
+* **Efficient polling:** The feed endpoint returns only listing IDs newer than the browser's cursor, with a maximum batch of 20.
 
 ---
 
@@ -73,15 +73,15 @@ flowchart LR
 
 ---
 
-## 📅 5-Day Delivery Schedule
+## ✅ Implemented marketplace workflows
 
-| Day | Focus Area | Status |
-| :---: | :--- | :---: |
-| **Day 1** | **System Documentation (SRS, ERD, Algorithms, API Specs, UI Architecture)** | ✅ **Completed** |
-| **Day 2** | **Project Setup, Custom User Model, Category/Listing Models, Pillow Pipeline, Admin Engine** | ⏳ Scheduled |
-| **Day 3** | **Seller Listing Studio, Dynamic Filters, Catalog Search & Wishlist Engine** | ⏳ Scheduled |
-| **Day 4** | **Live Responsive Feed (1–2s updates), Real-Time Chat & Price Offer State Machine** | ⏳ Scheduled |
-| **Day 5** | **21st.dev/Awwwards UI Polish, E2E Testing, Final Verification & Remote Push** | ⏳ Scheduled |
+* Search and filters for keyword, category, location, condition, price range, and sort order.
+* Listing lifecycle controls for available, deal pending, sold, and archived listings.
+* Wishlist, offers and counter-offers, listing-scoped buyer/seller messages, and community reports.
+* Automatic hiding after three independent pending reports, staff moderation, and a staff analytics page.
+* Uploaded listing images are orientation-corrected, resized, converted to WebP, and saved without EXIF metadata.
+
+API endpoints are routed under `/api/v1/`; staff can use `/marketplace-analytics/` and Django Admin for moderation.
 
 ---
 
@@ -103,12 +103,17 @@ venv\Scripts\activate   # On Windows
 source venv/bin/activate # On macOS/Linux
 
 # 3. Install dependencies
-pip install django pillow
+python -m pip install -r requirements.txt
 
-# 4. Apply migrations
+# 4. Apply database migrations
 python manage.py migrate
 
-# 5. Start development server
+# 5. (Optional) Create an admin account
+python manage.py createsuperuser
+
+# 6. Start the development server
 python manage.py runserver
 ```
 Visit `http://127.0.0.1:8000` to access the application.
+
+In development, account activation and password-reset emails are printed to the runserver console. To send real email, set `EMAIL_BACKEND`, `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_PORT`, and `EMAIL_USE_TLS` in the environment; do not commit credentials.

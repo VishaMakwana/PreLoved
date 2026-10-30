@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section-padding"><div class="container">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div><small class="text-uppercase text-primary font-weight-bold">Staff dashboard</small><h1>Marketplace analytics</h1></div>
+    <a class="btn btn-outline-primary" href="{% url 'admin:index' %}">Open moderation admin</a>
+  </div>
+  <div class="row">
+    <div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body"><small class="text-muted">Active listings</small><h2>{{ active_listings }}</h2></div></div></div>
+    <div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body"><small class="text-muted">All listings</small><h2>{{ total_listings }}</h2></div></div></div>
+    <div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body"><small class="text-muted">Active asking-price estimate</small><h2>₹{{ estimated_value }}</h2></div></div></div>
+    <div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body"><small class="text-muted">New accounts (7 days)</small><h2>{{ new_users_this_week }}</h2></div></div></div>
+    <div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body"><small class="text-muted">Reports awaiting review</small><h2>{{ pending_reports }}</h2></div></div></div>
+    <div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body"><small class="text-muted">Hidden listings</small><h2>{{ hidden_listings }}</h2></div></div></div>
+  </div>
+</div></section>
+{% endblock content %}

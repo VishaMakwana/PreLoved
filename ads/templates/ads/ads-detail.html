@@ -1,0 +1,742 @@
+{% extends "base.html" %}
+{% load static %}
+{% load embed_video_tags %}
+{% block content %}
+
+<!-- Custom Styles for Ad Detail Page -->
+<style>
+  .ad-detail-header-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  }
+  .ad-price-display {
+    font-size: 32px;
+    font-weight: 800;
+    color: #4f46e5;
+    line-height: 1.1;
+  }
+  .specs-container-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 24px;
+    margin-top: 24px;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  }
+  .spec-grid-item {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    transition: background 0.15s ease;
+  }
+  .spec-grid-item:hover {
+    background: #f1f5f9;
+  }
+  .spec-grid-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .spec-grid-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    word-break: break-word;
+  }
+  .feature-pill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eef2ff;
+    color: #4338ca;
+    border: 1px solid #c7d2fe;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 30px;
+    margin: 4px;
+  }
+  .seller-contact-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 24px;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  }
+  .action-call-btn {
+    background: #4f46e5;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none !important;
+  }
+  .action-call-btn:hover {
+    background: #4338ca;
+    transform: translateY(-1px);
+  }
+  .action-whatsapp-btn {
+    background: #25D366;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none !important;
+  }
+  .action-whatsapp-btn:hover {
+    background: #1ea952;
+    transform: translateY(-1px);
+  }
+  .verified-shield-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-condition-pill {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+  }
+  .badge-negotiable {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #dcfce7;
+    color: #15803d;
+  }
+  .badge-fixed {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #64748b;
+  }
+</style>
+
+<!-- Page Header Start -->
+<div class="page-header" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 30px 0;">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <span class="badge badge-primary px-3 py-1 mb-2" style="background: #4f46e5; font-size: 12px; border-radius: 20px;">
+          {{ ads_detail.category }}
+        </span>
+        <h1 style="color: #ffffff; font-weight: 800; font-size: 26px; margin: 0;">{{ ads_detail.title }}</h1>
+        <p style="color: #cbd5e1; font-size: 13px; margin: 6px 0 0 0;">
+          <i class="lni-map-marker"></i> {% if ads_detail.area %}{{ ads_detail.area }}, {% endif %}{{ ads_detail.city }}, {{ ads_detail.state }} &nbsp;|&nbsp;
+          <i class="lni-alarm-clock"></i> Posted: {{ ads_detail.date_created|date:"d M Y" }}
+        </p>
+      </div>
+      <div class="col-md-4 text-md-right mt-3 mt-md-0">
+        <div class="ad-price-display" style="color: #facc15;">
+          ₹{{ ads_detail.price }}
+        </div>
+        <div class="mt-1">
+          {% if ads_detail.is_negotiable %}
+            <span class="badge-negotiable"><i class="lni-check-mark mr-1"></i>Price Negotiable</span>
+          {% else %}
+            <span class="badge-fixed">Fixed Price</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Ads Details Start -->
+<div class="section-padding" style="background-color: #f8fafc; padding: 40px 0;">
+  <div class="container">
+    <div class="row">
+
+      <!-- LEFT COLUMN: PHOTOS & SPECIFICATIONS & DESCRIPTION -->
+      <div class="col-lg-8 col-md-12 col-xs-12">
+
+        <!-- Photo Carousel / Gallery -->
+        <div class="ad-detail-header-card p-2 text-center overflow-hidden">
+          {% if ads_photos.count > 1 %}
+          <div id="adCarousel" class="carousel slide carousel-fade" data-ride="carousel">
+            <!--Indicators-->
+            <ol class="carousel-indicators">
+              {% for p in ads_photos %}
+              <li data-target="#adCarousel" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}"></li>
+              {% endfor %}
+            </ol>
+            <!--Slides-->
+            <div class="carousel-inner" style="border-radius: 10px; max-height: 480px; background: #0f172a;">
+              {% for p in ads_photos %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img class="d-block w-100" src="{{ p.image.url }}" alt="{{ ads_detail.title }}" style="max-height: 480px; object-fit: contain; margin: 0 auto;">
+              </div>
+              {% endfor %}
+            </div>
+            <!--Controls-->
+            <a class="carousel-control-prev" href="#adCarousel" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#adCarousel" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Next</span>
+            </a>
+          </div>
+          {% elif ads_photos.count == 1 %}
+            {% for p in ads_photos %}
+            <img class="img-fluid rounded" src="{{ p.image.url }}" alt="{{ ads_detail.title }}" style="max-height: 480px; width: 100%; object-fit: contain;">
+            {% endfor %}
+          {% else %}
+            <div class="p-5 text-muted">
+              <i class="lni-image" style="font-size: 48px;"></i>
+              <p class="mt-2">No photos uploaded for this ad</p>
+            </div>
+          {% endif %}
+
+          {% if ads_detail.video %}
+          <div class="mt-3 text-center">
+            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#videoModal" style="border-radius: 8px; font-weight: 600;">
+              <i class="lni-video mr-1"></i> Watch Product Video Demo
+            </button>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- CATEGORY SPECIFICATIONS SECTION -->
+        {% if ads_detail.extra_details %}
+        <div class="specs-container-card">
+          <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+            <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0;">
+              <i class="lni-layers text-primary mr-1"></i> Category Specifications
+            </h3>
+            <span class="badge" style="background: #eef2ff; color: #4f46e5; font-weight: 600; font-size: 12px; border-radius: 6px; padding: 4px 10px;">
+              {{ ads_detail.category }}
+            </span>
+          </div>
+
+          <!-- Key-Value Specifications Grid -->
+          <div class="row">
+            {% for key, value in ads_detail.extra_details.items %}
+              {% if key != 'Key Features' %}
+              <div class="col-md-4 col-sm-6">
+                <div class="spec-grid-item">
+                  <div class="spec-grid-label">{{ key }}</div>
+                  <div class="spec-grid-value">{{ value }}</div>
+                </div>
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <!-- Key Features & Amenities (if present in extra_details) -->
+          {% for key, value in ads_detail.extra_details.items %}
+            {% if key == 'Key Features' %}
+            <div class="mt-3 pt-3 border-top">
+              <h5 style="font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 10px;">
+                <i class="lni-star text-warning mr-1"></i> Included Features & Amenities
+              </h5>
+              <div class="d-flex flex-wrap">
+                {% for feat in value|slice:":500"|linebreaksbr|safe %}
+                  <span class="feature-pill-badge"><i class="lni-checkmark-circle text-primary"></i> {{ value }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- PRODUCT DESCRIPTION -->
+        <div class="specs-container-card mt-4">
+          <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+            <i class="lni-text-align-left text-primary mr-1"></i> Description
+          </h3>
+          <div class="ads-description" style="font-size: 15px; line-height: 1.7; color: #334155; white-space: pre-line;">
+            {{ ads_detail.description|safe }}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: PRICE, SUMMARY, SELLER CONTACT -->
+      <div class="col-lg-4 col-md-12 col-xs-12 mt-4 mt-lg-0">
+
+        <!-- Price & Quick Info Box -->
+        <div class="seller-contact-card mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span style="font-size: 13px; color: #64748b; font-weight: 600;">OFFERED PRICE</span>
+            <span class="badge-condition-pill">{{ ads_detail.condition }} Condition</span>
+          </div>
+
+          <div class="ad-price-display mb-3">
+            ₹{{ ads_detail.price }}
+          </div>
+
+          <div class="d-flex align-items-center gap-2 mb-3">
+            {% if ads_detail.is_negotiable %}
+              <span class="badge-negotiable"><i class="lni-checkmark"></i> Negotiable</span>
+            {% else %}
+              <span class="badge-fixed">Fixed Price</span>
+            {% endif %}
+
+            {% if ads_detail.exchange_accepted %}
+              <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 600; font-size: 11px; padding: 3px 8px; border-radius: 6px;">
+                <i class="lni-reload"></i> Exchange Accepted
+              </span>
+            {% endif %}
+          </div>
+
+          <!-- Quick Specs List -->
+          <ul class="list-unstyled mb-0" style="font-size: 13px; color: #334155; border-top: 1px dashed #e2e8f0; padding-top: 14px;">
+            {% if ads_detail.brand %}
+            <li class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted"><i class="lni-package mr-1"></i> Brand:</span>
+              <span class="font-weight-bold">{{ ads_detail.brand }}</span>
+            </li>
+            {% endif %}
+
+            <li class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted"><i class="lni-folder mr-1"></i> Category:</span>
+              <span class="font-weight-bold">{{ ads_detail.category }}</span>
+            </li>
+
+            <li class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted"><i class="lni-map-marker mr-1"></i> Location:</span>
+              <span class="font-weight-bold text-right">{% if ads_detail.area %}{{ ads_detail.area }}, {% endif %}{{ ads_detail.city }}</span>
+            </li>
+
+            {% if ads_detail.purchase_year %}
+            <li class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted"><i class="lni-calendar mr-1"></i> Purchase Year / Age:</span>
+              <span class="font-weight-bold">{{ ads_detail.purchase_year }}</span>
+            </li>
+            {% endif %}
+
+            {% if ads_detail.bill_or_warranty %}
+            <li class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted"><i class="lni-certificate mr-1"></i> Bill / Warranty:</span>
+              <span class="font-weight-bold">{{ ads_detail.bill_or_warranty }}</span>
+            </li>
+            {% endif %}
+
+            {% if ads_detail.delivery_available %}
+            <li class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted"><i class="lni-delivery mr-1"></i> Delivery:</span>
+              <span class="font-weight-bold">{{ ads_detail.delivery_available }}</span>
+            </li>
+            {% endif %}
+
+            {% if ads_detail.reason_for_selling %}
+            <li class="d-flex justify-content-between py-1">
+              <span class="text-muted"><i class="lni-help mr-1"></i> Reason for Sale:</span>
+              <span class="font-weight-bold">{{ ads_detail.reason_for_selling }}</span>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <!-- SELLER CONTACT CARD -->
+        <div class="seller-contact-card">
+          <h4 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+            <i class="lni-user text-primary mr-1"></i> Seller Information
+          </h4>
+
+          <div class="d-flex align-items-center mb-3">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; margin-right: 12px;">
+              {{ ads_detail.seller_name|default:ads_detail.author.user.username|make_list|first|upper }}
+            </div>
+            <div>
+              <div style="font-size: 16px; font-weight: 700; color: #0f172a;">
+                {{ ads_detail.seller_name|default:ads_detail.author.user.username }}
+              </div>
+              <div>
+                {% if ads_detail.is_phone_verified %}
+                <span class="verified-shield-badge">
+                  <i class="lni-shield"></i> OTP Verified Seller
+                </span>
+                {% else %}
+                <span class="badge-fixed">Phone not independently verified</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3 text-muted" style="font-size: 12px;">
+            {% if ads_detail.preferred_contact %}
+              <div><strong>Preferred Contact:</strong> {{ ads_detail.preferred_contact }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex flex-column gap-2">
+            <a href="tel:{{ ads_detail.phone }}" class="action-call-btn mb-2">
+              <i class="lni-phone-handset"></i> Call {{ ads_detail.phone }}
+            </a>
+
+            <a href="https://wa.me/91{{ ads_detail.phone|cut:' '|cut:'-' }}?text=Hi%20{{ ads_detail.seller_name|default:'' }},%20I%20am%20interested%20in%20your%20ad%20'{{ ads_detail.title }}'%20on%20PreLoved" target="_blank" class="action-whatsapp-btn mb-2">
+              <i class="lni-whatsapp"></i> Chat on WhatsApp
+            </a>
+
+            {% if ads_detail.author.user.email %}
+            <a href="mailto:{{ ads_detail.author.user.email }}?subject=Inquiry%20about%20{{ ads_detail.title }}" class="btn btn-sm btn-outline-secondary py-2" style="border-radius: 8px; font-weight: 600;">
+              <i class="lni-envelope mr-1"></i> Send Email
+            </a>
+            {% endif %}
+          </div>
+
+          <div class="mt-3 text-center">
+            <a href="{% url 'author-archive' ads_detail.author.pk %}" class="small text-primary font-weight-bold">
+              View all ads by this seller &rarr;
+            </a>
+          </div>
+        </div>
+
+        <section class="ad-trade-panel" id="ad-trade-panel">
+          {% csrf_token %}
+          {% if not can_manage_ad and ads_detail.status == 'ACTIVE' and ads_detail.is_active %}
+          <div class="ad-trade-actions">
+            <button type="button" class="btn btn-outline-primary" id="wishlist-toggle"
+              data-url="{% url 'api-wishlist-toggle' ads_detail.pk %}" aria-pressed="{{ is_favorite|yesno:'true,false' }}">
+              <span id="wishlist-label">{% if is_favorite %}Saved{% else %}Save to wishlist{% endif %}</span>
+              <span id="wishlist-count">{{ favorite_count }}</span>
+            </button>
+            {% if user.is_authenticated %}
+            <form id="offer-form" data-url="{% url 'api-offer-create' ads_detail.pk %}">
+              <label for="offer-amount">Make an offer</label>
+              <div><input id="offer-amount" name="amount" type="number" min="0.01" step="0.01" required placeholder="Your price">
+                <button class="btn btn-primary" type="submit">Send offer</button></div>
+            </form>
+            {% else %}
+            <a class="btn btn-primary" href="{% url 'login' %}?next={{ request.path|urlencode }}">Sign in to make an offer</a>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if can_manage_ad %}
+          <div class="ad-owner-controls">
+            <strong>Manage this listing</strong>
+            <a class="btn btn-sm btn-outline-primary mt-2" href="{% url 'ads-edit' ads_detail.pk %}">Edit listing</a>
+            <form method="post" action="{% url 'ads-status-update' ads_detail.pk %}">
+              {% csrf_token %}
+              <button class="btn btn-outline-secondary" name="status" value="ACTIVE" type="submit">Mark available</button>
+              <button class="btn btn-outline-secondary" name="status" value="DEAL_PENDING" type="submit">Deal pending</button>
+              <button class="btn btn-outline-success" name="status" value="SOLD" type="submit">Mark sold</button>
+              <button class="btn btn-outline-danger" name="status" value="ARCHIVED" type="submit">Archive</button>
+            </form>
+          </div>
+          {% endif %}
+
+          {% if offers %}
+          <div class="ad-offer-list">
+            <h4>Offers</h4>
+            {% for offer in offers %}
+            <div class="ad-offer-row">
+              <span><strong>₹{{ offer.amount }}</strong> · {{ offer.get_status_display }}{% if can_manage_ad %} · {{ offer.buyer.username }}{% endif %}</span>
+              {% if can_manage_ad and offer.status == 'PENDING' %}
+              <div class="ad-offer-controls">
+                <button type="button" data-offer-action="ACCEPT" data-url="{% url 'api-offer-respond' offer.pk %}">Accept</button>
+                <button type="button" data-offer-action="REJECT" data-url="{% url 'api-offer-respond' offer.pk %}">Decline</button>
+                <input type="number" step="0.01" min="0.01" placeholder="Counter price" aria-label="Counter offer amount">
+                <button type="button" data-offer-action="COUNTER" data-url="{% url 'api-offer-respond' offer.pk %}">Counter</button>
+              </div>
+              {% elif offer.buyer_id == user.id and offer.status == 'COUNTERED' %}
+              <div class="ad-offer-controls">
+                <span>Seller counter: ₹{{ offer.counter_amount }}</span>
+                <button type="button" data-offer-action="ACCEPT" data-url="{% url 'api-offer-respond' offer.pk %}">Accept counter</button>
+                <button type="button" data-offer-action="REJECT" data-url="{% url 'api-offer-respond' offer.pk %}">Decline counter</button>
+              </div>
+              {% elif offer.buyer_id == user.id and offer.status == 'PENDING' %}
+              <button type="button" data-offer-action="CANCEL" data-url="{% url 'api-offer-cancel' offer.pk %}">Withdraw</button>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="ad-chat-panel" id="ad-chat"
+            data-url="{% url 'api-chat-messages' ads_detail.pk %}"
+            data-send-url="{% url 'api-chat-send' ads_detail.pk %}"
+            data-cursor="{{ chat_cursor }}"
+            data-can-read="{{ can_chat|yesno:'true,false' }}">
+            <h4>Message about this item</h4>
+            <div class="ad-chat-messages" id="ad-chat-messages" aria-live="polite">
+              {% for message in chat_messages %}
+              <div class="ad-chat-message" data-message-id="{{ message.pk }}">
+                <strong>{{ message.sender.username }}</strong>
+                <span>{{ message.body }}</span>
+                <time>{{ message.created_at|date:"M j, H:i" }}</time>
+              </div>
+              {% empty %}
+              <p class="ad-chat-empty">Ask the seller a question or arrange a safe local pickup.</p>
+              {% endfor %}
+            </div>
+            {% if user.is_authenticated %}
+            <form id="ad-chat-form">
+              <label class="sr-only" for="ad-chat-input">Your message</label>
+              <input id="ad-chat-input" maxlength="4000" required placeholder="Write a message to the seller">
+              <button class="btn btn-primary" type="submit">Send</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}?next={{ request.path|urlencode }}">Sign in to message the seller</a>
+            {% endif %}
+          </div>
+
+          {% if user.is_authenticated and not can_manage_ad and ads_detail.status == 'ACTIVE' %}
+          <form class="ad-report-form" id="ad-report-form" data-url="{% url 'api-listing-report' ads_detail.pk %}">
+            <label for="report-reason">See a problem with this listing?</label>
+            <select id="report-reason" name="reason" required>
+              <option value="">Choose a reason</option>
+              <option value="SUSPICIOUS">Suspicious or fraudulent</option>
+              <option value="COUNTERFEIT">Counterfeit</option>
+              <option value="MISLEADING">Misleading information</option>
+              <option value="PROHIBITED">Prohibited item</option>
+              <option value="OTHER">Other</option>
+            </select>
+            <input name="details" maxlength="2000" placeholder="Additional details (optional)">
+            <button type="submit">Report listing</button>
+          </form>
+          {% endif %}
+          <p class="ad-trade-feedback" id="ad-trade-feedback" role="status" aria-live="polite"></p>
+        </section>
+
+        <!-- Safety Advice Card -->
+        <div class="p-3 mt-4" style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px;">
+          <h6 style="font-size: 13px; font-weight: 700; color: #92400e; margin-bottom: 6px;">
+            <i class="lni-warning mr-1"></i> Safety Tips for Buyers
+          </h6>
+          <ul class="pl-3 mb-0" style="font-size: 12px; color: #78350f; line-height: 1.5;">
+            <li>Meet seller at a safe public location.</li>
+            <li>Inspect the item thoroughly before payment.</li>
+            <li>Never pay advance or transfer money before seeing the item.</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- Ads Details End -->
+
+<!-- Video Modal -->
+{% if ads_detail.video %}
+<div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title font-weight-bold">{{ ads_detail.title }} - Video Demo</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        {% video ads_detail.video 'small' %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<style>
+  .ad-trade-panel { margin-top: 20px; padding: 18px; border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; }
+  .ad-trade-panel h4 { margin: 0 0 12px; color: #0f172a; font-size: 15px; font-weight: 700; }
+  .ad-trade-actions, .ad-owner-controls, .ad-offer-list { padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #eef0f5; }
+  .ad-trade-actions { display: flex; flex-direction: column; gap: 12px; }
+  .ad-trade-actions button { min-height: 42px; }
+  #offer-form label, .ad-report-form label { display: block; margin-bottom: 6px; color: #334155; font-size: 12px; font-weight: 700; }
+  #offer-form > div { display: flex; gap: 8px; }
+  #offer-form input, .ad-chat-panel input, .ad-report-form input, .ad-report-form select { min-width: 0; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
+  #offer-form input { width: 100%; }
+  .ad-owner-controls form, .ad-offer-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .ad-owner-controls .btn, .ad-offer-controls button, .ad-report-form button { padding: 7px 10px; border: 1px solid #d5d9e3; border-radius: 7px; color: #334155; background: #fff; font-size: 11px; font-weight: 650; }
+  .ad-offer-row { display: flex; flex-direction: column; gap: 7px; padding: 10px 0; border-bottom: 1px solid #f1f3f7; font-size: 12px; }
+  .ad-offer-row:last-child { border-bottom: 0; }
+  .ad-chat-messages { display: flex; max-height: 280px; flex-direction: column; gap: 9px; overflow-y: auto; margin-bottom: 10px; }
+  .ad-chat-message { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 9px 11px; border-radius: 9px; background: #f7f8fc; font-size: 12px; }
+  .ad-chat-message span { grid-column: 1 / -1; color: #334155; overflow-wrap: anywhere; }
+  .ad-chat-message time { color: #81879a; font-size: 10px; }
+  .ad-chat-empty { margin: 0; color: #64748b; font-size: 12px; }
+  #ad-chat-form { display: flex; gap: 7px; }
+  #ad-chat-form input { flex: 1; }
+  .ad-report-form { display: grid; gap: 7px; padding-top: 14px; }
+  .ad-report-form label { margin: 0; }
+  .ad-report-form button { justify-self: start; color: #a33b43; }
+  .ad-trade-feedback { margin: 10px 0 0; color: #334155; font-size: 12px; }
+  @media (max-width: 575px) { .ad-trade-panel { padding: 13px; } .ad-owner-controls form > * { flex: 1 1 45%; } }
+</style>
+
+<script>
+  (function () {
+    const panel = document.getElementById('ad-trade-panel');
+    if (!panel) return;
+    const feedback = document.getElementById('ad-trade-feedback');
+    const token = panel.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    async function post(url, payload) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': token, 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify(payload || {})
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'The request could not be completed.');
+      return data;
+    }
+
+    function showFeedback(message, isError) {
+      feedback.textContent = message;
+      feedback.style.color = isError ? '#b42318' : '#047857';
+    }
+
+    const favoriteButton = document.getElementById('wishlist-toggle');
+    if (favoriteButton) {
+      favoriteButton.addEventListener('click', async function () {
+        try {
+          const result = await post(favoriteButton.dataset.url);
+          favoriteButton.setAttribute('aria-pressed', String(result.saved));
+          document.getElementById('wishlist-label').textContent = result.saved ? 'Saved' : 'Save to wishlist';
+          document.getElementById('wishlist-count').textContent = result.count;
+          showFeedback(result.saved ? 'Saved to your wishlist.' : 'Removed from your wishlist.', false);
+        } catch (error) {
+          showFeedback(error.message, true);
+        }
+      });
+    }
+
+    const offerForm = document.getElementById('offer-form');
+    if (offerForm) {
+      offerForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        try {
+          await post(offerForm.dataset.url, { amount: document.getElementById('offer-amount').value });
+          showFeedback('Offer sent. Refresh this page to see its status.', false);
+          offerForm.reset();
+        } catch (error) {
+          showFeedback(error.message, true);
+        }
+      });
+    }
+
+    panel.querySelectorAll('[data-offer-action]').forEach(function (button) {
+      button.addEventListener('click', async function () {
+        const payload = { decision: button.dataset.offerAction };
+        if (payload.decision === 'COUNTER') {
+          const amount = button.parentElement.querySelector('input').value;
+          payload.amount = amount;
+        }
+        try {
+          await post(button.dataset.url, payload);
+          showFeedback('Offer updated. Refresh this page to see the latest status.', false);
+          button.disabled = true;
+        } catch (error) {
+          showFeedback(error.message, true);
+        }
+      });
+    });
+
+    const reportForm = document.getElementById('ad-report-form');
+    if (reportForm) {
+      reportForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const formData = new FormData(reportForm);
+        try {
+          await post(reportForm.dataset.url, { reason: formData.get('reason'), details: formData.get('details') });
+          showFeedback('Thank you. Your report has been sent to the moderation team.', false);
+          reportForm.reset();
+        } catch (error) {
+          showFeedback(error.message, true);
+        }
+      });
+    }
+
+    const chat = document.getElementById('ad-chat');
+    const messageList = document.getElementById('ad-chat-messages');
+    const chatForm = document.getElementById('ad-chat-form');
+    if (!chat || !messageList) return;
+    let chatCursor = Number(chat.dataset.cursor || 0);
+    let canReadChat = chat.dataset.canRead === 'true';
+
+    function addMessage(message) {
+      if (messageList.querySelector('[data-message-id="' + message.id + '"]')) return;
+      const empty = messageList.querySelector('.ad-chat-empty');
+      if (empty) empty.remove();
+      const row = document.createElement('div');
+      row.className = 'ad-chat-message';
+      row.dataset.messageId = message.id;
+      const sender = document.createElement('strong');
+      sender.textContent = message.sender;
+      const body = document.createElement('span');
+      body.textContent = message.body;
+      const time = document.createElement('time');
+      time.textContent = new Date(message.created_at).toLocaleString();
+      row.append(sender, body, time);
+      messageList.appendChild(row);
+      messageList.scrollTop = messageList.scrollHeight;
+      chatCursor = Math.max(chatCursor, Number(message.id));
+    }
+
+    if (chatForm) {
+      chatForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const input = document.getElementById('ad-chat-input');
+        try {
+          const message = await post(chat.dataset.sendUrl, { body: input.value });
+          addMessage(message);
+          canReadChat = true;
+          chat.dataset.canRead = 'true';
+          input.value = '';
+        } catch (error) {
+          showFeedback(error.message, true);
+        }
+      });
+    }
+
+    async function pollChat() {
+      if (!canReadChat || document.hidden) return;
+      try {
+        const response = await fetch(chat.dataset.url + '?after_id=' + chatCursor);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Could not refresh messages.');
+        data.messages.forEach(addMessage);
+      } catch (error) {
+        console.error('Unable to refresh this conversation.', error);
+      }
+    }
+    window.setInterval(pollChat, 2000);
+  }());
+</script>
+{% endblock content %}

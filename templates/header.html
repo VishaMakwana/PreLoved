@@ -1,0 +1,1409 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>PreLoved - Second-Hand Goods Marketplace</title>
+
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- Icon -->
+    <link rel="stylesheet" type="text/css" href="{% static 'fonts/line-icons.css' %}">
+    <!-- Slicknav -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/slicknav.css' %}">
+    <!-- Nivo Lightbox -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/nivo-lightbox.css' %}">
+    <!-- Animate -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}">
+    <!-- Filepond CSS -->
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+    <!-- Main Style -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <!-- Responsive Style -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/homepage.css' %}">
+
+    <!-- Scoped Modern Navbar Styles -->
+    <style>
+      :root {
+        --pl-primary: #4f46e5;
+        --pl-primary-hover: #4338ca;
+        --pl-accent: #f59e0b;
+        --pl-text-dark: #0f172a;
+        --pl-text-muted: #64748b;
+        --pl-border: #e2e8f0;
+        --pl-bg-light: #f8fafc;
+        --pl-card-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+      }
+
+      /* Base adjustments */
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      .slicknav_menu {
+        display: none !important;
+      }
+      .page-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%) !important;
+        padding-top: 140px !important;
+      }
+
+      /* Navbar Master Wrapper */
+      #preloved-main-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 9999;
+        background: #ffffff;
+        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+        border-bottom: 1px solid var(--pl-border);
+        font-family: 'Inter', sans-serif;
+      }
+
+      /* Top Tier: Primary Navbar - 100% Full Screen Edge to Edge */
+      .pl-nav-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 24px;
+        gap: 16px;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      /* Brand Logo */
+      .pl-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none !important;
+        flex-shrink: 0;
+      }
+      .pl-brand-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 20px;
+        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      }
+      .pl-brand-text {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: #0f172a;
+        line-height: 1.1;
+      }
+      .pl-brand-text span {
+        color: #4f46e5;
+      }
+      .pl-brand-sub {
+        font-size: 10px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        color: #64748b;
+        display: block;
+      }
+
+      /* Location Picker Pill */
+      .pl-location-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+      .pl-location-btn:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #0f172a;
+      }
+
+      /* Search Bar */
+      .pl-search-wrap {
+        flex: 1;
+        max-width: 900px;
+        margin: 0 16px;
+        position: relative;
+      }
+      .pl-search-form {
+        display: flex;
+        align-items: center;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        background: #ffffff;
+        transition: all 0.2s ease;
+        overflow: hidden;
+      }
+      .pl-search-form:focus-within {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+      }
+      .pl-search-cat {
+        border: none;
+        background: #f8fafc;
+        border-right: 1px solid #e2e8f0;
+        padding: 9px 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #475569;
+        outline: none;
+        cursor: pointer;
+        max-width: 140px;
+      }
+      .pl-search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 9px 14px;
+        font-size: 14px;
+        color: #0f172a;
+        background: transparent;
+      }
+      .pl-search-input::placeholder {
+        color: #94a3b8;
+      }
+      .pl-search-submit {
+        background: #4f46e5;
+        color: #ffffff;
+        border: none;
+        padding: 9px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .pl-search-submit:hover {
+        background: #4338ca;
+      }
+
+      /* Right Actions Area */
+      .pl-nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      .pl-icon-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none !important;
+      }
+      .pl-icon-btn:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+      }
+      .pl-badge {
+        background: #ef4444;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 9999px;
+        line-height: 1;
+      }
+      .pl-badge-blue {
+        background: #4f46e5;
+      }
+
+      /* Post Ad Button */
+      .pl-sell-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        color: #ffffff !important;
+        font-weight: 700;
+        font-size: 13.5px;
+        padding: 8px 18px;
+        border-radius: 8px;
+        text-decoration: none !important;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+      .pl-sell-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+        color: #ffffff !important;
+      }
+
+      /* Secondary Tier: Sub-Navbar (Categories & Deals) - Strictly One Row Edge-to-Edge */
+      .pl-nav-sub {
+        border-top: 1px solid #f1f5f9;
+        background: #ffffff;
+        padding: 3px 20px;
+        position: relative;
+        z-index: 1000;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .pl-sub-inner {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        box-sizing: border-box;
+      }
+      .pl-category-links {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+        width: 100%;
+      }
+      .pl-category-links > li {
+        flex-shrink: 0;
+      }
+      .pl-cat-dropdown-wrap {
+        position: relative;
+        flex-shrink: 0;
+      }
+      .pl-cat-link {
+        font-size: 12px;
+        font-weight: 500;
+        color: #334155;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        transition: all 0.15s ease;
+        padding: 5px 6px;
+        border-radius: 6px;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        white-space: nowrap !important;
+      }
+      .pl-cat-link:hover, .pl-cat-link.active, .pl-cat-dropdown-wrap.is-open > .pl-cat-link {
+        color: #4f46e5;
+        background: #f1f5f9;
+        font-weight: 600;
+      }
+      .pl-cat-arrow {
+        transition: transform 0.2s ease;
+        opacity: 0.65;
+        flex-shrink: 0;
+      }
+      .pl-cat-dropdown-wrap:hover > .pl-cat-link .pl-cat-arrow,
+      .pl-cat-dropdown-wrap.is-open > .pl-cat-link .pl-cat-arrow {
+        transform: rotate(180deg);
+        opacity: 1;
+        color: #4f46e5;
+      }
+
+      @media (min-width: 1400px) {
+        .pl-cat-link {
+          font-size: 12.5px;
+          padding: 5px 8px;
+          gap: 4px;
+        }
+        .pl-category-links {
+          gap: 4px;
+        }
+      }
+
+      @media (min-width: 1600px) {
+        .pl-cat-link {
+          font-size: 13px;
+          padding: 6px 10px;
+          gap: 5px;
+        }
+        .pl-category-links {
+          gap: 6px;
+        }
+      }
+
+      /* Floating Subcategory Dropdown Panel */
+      .pl-cat-dropdown-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        min-width: 250px;
+        max-width: 320px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 14px 35px rgba(15, 23, 42, 0.14);
+        padding: 0;
+        z-index: 10050;
+        overflow: hidden;
+        animation: plFadeIn 0.15s ease-out;
+      }
+      /* Align right for categories near the edge */
+      .pl-cat-dropdown-wrap:nth-last-child(-n+5) .pl-cat-dropdown-menu {
+        left: auto;
+        right: 0;
+      }
+        border-radius: 12px;
+        box-shadow: 0 14px 35px rgba(15, 23, 42, 0.14);
+        padding: 0;
+        z-index: 10050;
+        overflow: hidden;
+        animation: plFadeIn 0.15s ease-out;
+      }
+      .pl-cat-dropdown-menu::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        left: 0;
+        right: 0;
+        height: 6px;
+      }
+      .pl-cat-dropdown-wrap:hover > .pl-cat-dropdown-menu,
+      .pl-cat-dropdown-wrap.is-open > .pl-cat-dropdown-menu {
+        display: block;
+      }
+      .pl-cat-dropdown-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .pl-cat-dropdown-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .pl-cat-view-all {
+        font-size: 12px;
+        font-weight: 600;
+        color: #4f46e5;
+        text-decoration: none !important;
+      }
+      .pl-cat-view-all:hover {
+        text-decoration: underline !important;
+      }
+      .pl-subcat-list {
+        list-style: none;
+        margin: 0;
+        padding: 6px 0;
+        max-height: 380px;
+        overflow-y: auto;
+      }
+      .pl-subcat-item {
+        margin: 0;
+      }
+      .pl-subcat-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
+        text-decoration: none !important;
+        transition: all 0.15s ease;
+      }
+      .pl-subcat-link:hover {
+        background: #f1f5f9;
+        color: #4f46e5;
+        padding-left: 20px;
+        font-weight: 600;
+      }
+
+      /* Mega Dropdown for All Categories */
+      .pl-mega-menu {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        width: 900px;
+        max-height: 520px;
+        overflow-y: auto;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+        padding: 18px 20px;
+        z-index: 10050;
+        display: none;
+        animation: plFadeIn 0.15s ease-out;
+      }
+      .pl-mega-menu.show, .pl-cat-dropdown-wrap:hover .pl-mega-menu, .pl-cat-dropdown-wrap.is-open .pl-mega-menu {
+        display: block;
+      }
+      .pl-mega-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+      .pl-mega-col h4 {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 6px 0;
+        padding-bottom: 4px;
+        border-bottom: 2px solid #e0e7ff;
+      }
+      .pl-mega-col h4 a {
+        color: #0f172a;
+        text-decoration: none !important;
+      }
+      .pl-mega-col h4 a:hover {
+        color: #4f46e5;
+      }
+      .pl-mega-col ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .pl-mega-col li a {
+        display: block;
+        padding: 3px 0;
+        font-size: 12px;
+        color: #475569;
+        text-decoration: none !important;
+        transition: color 0.15s;
+      }
+      .pl-mega-col li a:hover {
+        color: #4f46e5;
+      }
+
+      /* Mobile Accordion Styles */
+      .pl-mobile-cat-item {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 6px 0;
+      }
+      .pl-mobile-cat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .pl-mobile-cat-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+        text-decoration: none !important;
+        padding: 6px 0;
+        flex: 1;
+      }
+      .pl-mobile-cat-btn {
+        background: #f1f5f9;
+        border: none;
+        border-radius: 6px;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .pl-mobile-cat-btn.open {
+        transform: rotate(180deg);
+        background: #e0e7ff;
+        color: #4f46e5;
+      }
+      .pl-mobile-subcat-box {
+        display: none;
+        padding: 6px 0 6px 12px;
+        border-left: 2px solid #e0e7ff;
+        margin: 4px 0 6px 4px;
+      }
+      .pl-mobile-subcat-box.show {
+        display: block;
+      }
+      .pl-mobile-subcat-link {
+        display: block;
+        padding: 5px 0;
+        font-size: 13px;
+        color: #475569;
+        text-decoration: none !important;
+      }
+      .pl-mobile-subcat-link:hover {
+        color: #4f46e5;
+      }
+
+      .pl-deal-badge {
+        background: #fee2e2;
+        color: #dc2626;
+        font-size: 9.5px;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 9999px;
+        margin-left: 2px;
+        line-height: 1.2;
+      }
+      .pl-popular-badge {
+        background: #e0e7ff;
+        color: #4338ca;
+        font-size: 9.5px;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 9999px;
+        margin-left: 2px;
+        line-height: 1.2;
+      }
+
+      /* Flyout Menus & Dropdowns */
+      .pl-dropdown {
+        position: relative;
+      }
+      .pl-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: var(--pl-card-shadow);
+        z-index: 10000;
+        display: none;
+        overflow: hidden;
+        animation: plFadeIn 0.18s ease-out;
+      }
+      .pl-menu.show {
+        display: block;
+      }
+      @keyframes plFadeIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Specific Dropdown Widths */
+      .pl-menu-location { width: 280px; max-height: 380px; overflow-y: auto; }
+      .pl-menu-cart { width: 380px; }
+      .pl-menu-account { width: 260px; }
+      .pl-menu-notif { width: 320px; }
+
+      /* Dropdown Inner Styles */
+      .pl-menu-header {
+        padding: 12px 16px;
+        background: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .pl-menu-list {
+        list-style: none;
+        margin: 0;
+        padding: 6px 0;
+      }
+      .pl-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 16px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none !important;
+        transition: background 0.15s ease;
+      }
+      .pl-menu-item:hover {
+        background: #f1f5f9;
+        color: #4f46e5;
+      }
+      .pl-menu-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 6px 0;
+      }
+
+      /* Cart Item Rows */
+      .pl-cart-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        border-bottom: 1px solid #f8fafc;
+        transition: all 0.2s ease;
+      }
+      .pl-cart-item:hover {
+        background: #f8fafc;
+      }
+      .pl-cart-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f172a;
+        text-decoration: none !important;
+        display: block;
+        max-width: 220px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pl-cart-meta {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 2px;
+      }
+      .pl-cart-del {
+        background: transparent;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 6px;
+      }
+      .pl-cart-del:hover {
+        background: #fee2e2;
+      }
+
+      /* Notification Item Rows */
+      .pl-notif-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 16px;
+        transition: background 0.15s ease;
+      }
+      .pl-notif-item:hover {
+        background: #f8fafc;
+      }
+      .pl-notif-del {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 16px;
+        line-height: 1;
+        transition: all 0.15s ease;
+        margin-left: 8px;
+      }
+      .pl-notif-del:hover {
+        background: #fee2e2;
+        color: #ef4444;
+      }
+
+      /* Mobile Drawer */
+      #pl-mobile-drawer {
+        display: none;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        padding: 16px 20px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+      #pl-mobile-drawer.show {
+        display: block;
+      }
+      .pl-mobile-toggle {
+        display: none;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 8px;
+        color: #334155;
+      }
+
+      /* Responsive Breakpoints */
+      @media (max-width: 991px) {
+        .pl-search-wrap { display: none; }
+        .pl-location-btn { display: none; }
+        .pl-nav-sub { display: none; }
+        .pl-mobile-toggle { display: inline-flex; }
+        .pl-sell-btn span { display: none; }
+        .pl-sell-btn { padding: 8px 12px; }
+      }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Area wrapper Starts -->
+    <header id="header-wrap">
+        <nav id="preloved-main-header">
+            <!-- 1. TOP BAR: Brand, Location, Search, Actions, CTAs -->
+            <div class="pl-nav-top">
+
+                <!-- Logo & Brand -->
+                <div class="d-flex align-items-center" style="gap: 12px; flex-shrink: 0;">
+                    <a href="{% url 'home' %}" class="pl-brand" title="PreLoved - Peer to Peer Marketplace">
+                        <div class="pl-brand-badge">⚡</div>
+                        <div>
+                            <div class="pl-brand-text"><span>Pre</span>Loved</div>
+                            <span class="pl-brand-sub">Second-Hand Goods</span>
+                        </div>
+                    </a>
+
+                    <!-- Location Selector Dropdown -->
+                    <div class="pl-dropdown">
+                        <button id="plLocationBtn" type="button" class="pl-location-btn" title="Filter by State">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            <span id="plCurrentState">All India</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div id="plLocationMenu" class="pl-menu pl-menu-location">
+                            <div class="pl-menu-header">
+                                <span>Select Your State</span>
+                                <a href="{% url 'ads-listing' %}" style="font-size: 11px; color: #4f46e5; text-decoration: none;">Reset All</a>
+                            </div>
+                            <ul class="pl-menu-list">
+                                <li>
+                                    <a href="{% url 'ads-listing' %}" class="pl-menu-item" style="font-weight: 700; color: #4f46e5;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+                                        All India (Entire Country)
+                                    </a>
+                                </li>
+                                {% if nav_states %}
+                                    {% for s in nav_states %}
+                                    <li>
+                                        <a href="{% url 'state-archive' s.slug %}" class="pl-menu-item">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="3"></circle></svg>
+                                            {{ s.state_name }}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li><a href="{% url 'state-archive' 'gujarat' %}" class="pl-menu-item">Gujarat</a></li>
+                                    <li><a href="{% url 'state-archive' 'maharashtra' %}" class="pl-menu-item">Maharashtra</a></li>
+                                    <li><a href="{% url 'state-archive' 'delhi' %}" class="pl-menu-item">Delhi</a></li>
+                                    <li><a href="{% url 'state-archive' 'karnataka' %}" class="pl-menu-item">Karnataka</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Marketplace Search Bar -->
+                <div class="pl-search-wrap">
+                    <form method="GET" action="{% url 'ads-search' %}" class="pl-search-form">
+                        <select name="category_name" class="pl-search-cat" title="Select Category">
+                            <option value="">All Categories</option>
+                            {% if nav_categories %}
+                                {% for cat in nav_categories %}
+                                    {% if cat.subcategories.all %}
+                                        <optgroup label="{{ cat.category_name }}">
+                                            <option value="{{ cat.category_name }}">{{ cat.category_name }} (All)</option>
+                                            {% for sub in cat.subcategories.all %}
+                                                <option value="{{ sub.category_name }}">{{ sub.category_name }}</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    {% else %}
+                                        <option value="{{ cat.category_name }}">{{ cat.category_name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        <input type="text" name="customword" class="pl-search-input" placeholder="Search pre-loved phones, laptops, electronics, furniture..." autocomplete="off">
+                        <button type="submit" class="pl-search-submit" title="Search">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right Action Icons & Dropdowns -->
+                <div class="pl-nav-actions">
+
+                    <!-- Notifications Dropdown -->
+                    <div class="pl-dropdown">
+                        <button id="plNotifBtn" type="button" class="pl-icon-btn" title="Notifications">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                            <span id="plNotifBadge" class="pl-badge">3</span>
+                        </button>
+                        <div id="plNotifMenu" class="pl-menu pl-menu-notif">
+                            <div class="pl-menu-header">
+                                <span>Notifications (<span id="plNotifCountText">3</span>)</span>
+                                <button id="plClearNotifBtn" type="button" style="font-size: 11px; color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 600;">Clear All</button>
+                            </div>
+                            <ul id="plNotifList" class="pl-menu-list" style="max-height: 280px; overflow-y: auto;">
+                                <!-- Dynamic notifications from localStorage -->
+                            </ul>
+                            <div id="plNotifEmpty" style="display: none; padding: 24px; text-align: center; color: #94a3b8;">
+                                <div style="font-size: 26px; margin-bottom: 6px;">🔔</div>
+                                <div style="font-size: 13px; font-weight: 600; color: #334155;">No new notifications</div>
+                                <div style="font-size: 11px; color: #64748b;">You're all caught up!</div>
+                                <button id="plResetNotifBtn" type="button" style="margin-top: 10px; font-size: 11px; color: #4f46e5; background: none; border: 1px solid #c7d2fe; padding: 4px 10px; border-radius: 6px; cursor: pointer;">Reset Sample Notifications</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Cart / Saved Ads Dropdown (from navbar.txt) -->
+                    <div class="pl-dropdown">
+                        <button id="plCartBtn" type="button" class="pl-icon-btn" title="View Saved / Cart Items">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                            <span class="d-none d-sm-inline">My Cart</span>
+                            <span id="plCartBadge" class="pl-badge pl-badge-blue">5</span>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div id="plCartMenu" class="pl-menu pl-menu-cart">
+                            <div class="pl-menu-header">
+                                <span>Cart &amp; Saved Items (<span id="plCartCountText">5</span>)</span>
+                                <button id="plClearCartBtn" type="button" style="font-size: 11px; color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 600;">Clear All</button>
+                            </div>
+                            <div id="plCartList" style="max-height: 290px; overflow-y: auto;">
+                                <!-- Dynamic cart items from localStorage -->
+                            </div>
+                            <div id="plCartEmpty" style="display: none; padding: 24px; text-align: center; color: #94a3b8;">
+                                <div style="font-size: 28px; margin-bottom: 6px;">🛒</div>
+                                <div style="font-size: 13px; font-weight: 600; color: #334155;">Your cart is empty</div>
+                                <div style="font-size: 11px; color: #64748b;">Browse verified listings to make an offer!</div>
+                                <button id="plResetCartBtn" type="button" style="margin-top: 10px; font-size: 11px; color: #4f46e5; background: none; border: 1px solid #c7d2fe; padding: 4px 10px; border-radius: 6px; cursor: pointer;">Reset Sample Cart Items</button>
+                            </div>
+                            <div id="plCartFooter" style="padding: 12px 16px; background: #f8fafc; border-top: 1px solid #f1f5f9;">
+                                <a href="{% url 'ads-listing' %}" class="pl-sell-btn" style="width: 100%; justify-content: center; border-radius: 8px;">
+                                    Proceed to Checkout &amp; Offers &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Account Dropdown (All Components from navbar.txt) -->
+                    <div class="pl-dropdown">
+                        <button id="plAccountBtn" type="button" class="pl-icon-btn" title="Account Menu">
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <span class="d-none d-sm-inline">
+                                {% if request.user.is_authenticated %}
+                                    {{ request.user.username|truncatechars:10 }}
+                                {% else %}
+                                    Account
+                                {% endif %}
+                            </span>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div id="plAccountMenu" class="pl-menu pl-menu-account">
+                            {% if request.user.is_authenticated %}
+                            <div class="pl-menu-header" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                                <span style="font-size: 10px; text-transform: uppercase; color: #94a3b8;">Signed in as</span>
+                                <strong style="color: #4f46e5; font-size: 13px;">{{ request.user.username }}</strong>
+                            </div>
+                            <ul class="pl-menu-list">
+                                <li><a href="{% url 'dashboard' %}" class="pl-menu-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> My Account / Dashboard</a></li>
+                                <li><a href="{% url 'dashboard' %}" class="pl-menu-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg> My Orders & Bids</a></li>
+                                <li><a href="{% url 'profile-ads' %}" class="pl-menu-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> My Ads</a></li>
+                                <li><a href="{% url 'profile-favorite-ads' %}" class="pl-menu-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Favourites / Saved</a></li>
+                                <li><a href="{% url 'profile-settings' %}" class="pl-menu-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Delivery Addresses</a></li>
+                                <li><a href="{% url 'profile-settings' %}" class="pl-menu-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Billing Data</a></li>
+                                <li><a href="{% url 'profile-settings' %}" class="pl-menu-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a></li>
+                                <li class="pl-menu-divider"></li>
+                                <li><a href="{% url 'logout' %}" class="pl-menu-item" style="color: #ef4444;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign Out</a></li>
+                            </ul>
+                            {% else %}
+                            <div class="pl-menu-header">
+                                <span>Welcome to PreLoved</span>
+                            </div>
+                            <ul class="pl-menu-list">
+                                <li><a href="{% url 'login' %}" class="pl-menu-item" style="font-weight: 600; color: #4f46e5;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg> Log In</a></li>
+                                <li><a href="{% url 'signup' %}" class="pl-menu-item" style="font-weight: 600;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg> Sign Up / Register</a></li>
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Post An Ad / Sell Button (from navbar.txt: Sell) -->
+                    <a href="{% url 'post-ads' %}" class="pl-sell-btn" title="Post Free Ad on PreLoved">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Sell / Post Ad</span>
+                    </a>
+
+                    <!-- Mobile Hamburger Button -->
+                    <button id="plMobileToggleBtn" type="button" class="pl-mobile-toggle" aria-label="Toggle Navigation">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- 2. SUB-BAR: Category & Deals Quick Strip -->
+            <div class="pl-nav-sub">
+                <div class="pl-sub-inner">
+                    <ul class="pl-category-links">
+                        <!-- 1. All Categories Button with Mega Menu -->
+                        <li class="pl-cat-dropdown-wrap">
+                            <a href="{% url 'ads-listing' %}" class="pl-cat-link" style="font-weight: 700; color: #4f46e5;" id="plAllCatBtn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                                <span>All Categories</span>
+                                <svg class="pl-cat-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </a>
+                            <div class="pl-mega-menu" id="plMegaMenu">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
+                                    <span style="font-size: 14px; font-weight: 800; color: #0f172a;">Explore All Marketplace Categories</span>
+                                    <a href="{% url 'ads-listing' %}" style="font-size: 12px; font-weight: 700; color: #4f46e5; text-decoration: none;">View All Ads &rarr;</a>
+                                </div>
+                                <div class="pl-mega-grid">
+                                    {% for cat in nav_categories %}
+                                    <div class="pl-mega-col">
+                                        <h4>
+                                            <a href="{% url 'category-archive' cat.slug %}">{{ cat.category_name }}</a>
+                                        </h4>
+                                        {% if cat.subcategories.all %}
+                                        <ul>
+                                            {% for sub in cat.subcategories.all|slice:":6" %}
+                                            <li>
+                                                <a href="{% url 'category-archive' sub.slug %}">{{ sub.category_name }}</a>
+                                            </li>
+                                            {% endfor %}
+                                            {% if cat.subcategories.all|length > 6 %}
+                                            <li>
+                                                <a href="{% url 'category-archive' cat.slug %}" style="color: #4f46e5; font-weight: 600;">+ more {{ cat.category_name }}</a>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 2. Main Hierarchical Category Dropdowns -->
+                        {% if nav_categories %}
+                            {% for cat in nav_categories %}
+                            <li class="pl-cat-dropdown-wrap">
+                                <a href="{% url 'category-archive' cat.slug %}" class="pl-cat-link pl-cat-btn" data-cat="{{ cat.slug }}">
+                                    <span>{{ cat.category_name }}</span>
+                                    {% if cat.subcategories.all %}
+                                    <svg class="pl-cat-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    {% endif %}
+                                </a>
+                                {% if cat.subcategories.all %}
+                                <div class="pl-cat-dropdown-menu">
+                                    <div class="pl-cat-dropdown-header">
+                                        <span class="pl-cat-dropdown-title">{{ cat.category_name }}</span>
+                                        <a href="{% url 'category-archive' cat.slug %}" class="pl-cat-view-all">All in {{ cat.category_name }} &rarr;</a>
+                                    </div>
+                                    <ul class="pl-subcat-list">
+                                        {% for sub in cat.subcategories.all %}
+                                        <li class="pl-subcat-item">
+                                            <a href="{% url 'category-archive' sub.slug %}" class="pl-subcat-link">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                                <span style="flex: 1;">{{ sub.category_name }}</span>
+                                                {% if '>' in sub.category_name %}
+                                                <span class="pl-subcat-arrow-pill" style="font-size: 11px; font-weight: 800; color: #4f46e5; background: #e0e7ff; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-left: 6px; flex-shrink: 0;" title="More items inside">&gt;</span>
+                                                {% endif %}
+                                            </a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- 3. Deals & Specials -->
+                        <li>
+                            <a href="{% url 'ads-listing' %}" class="pl-cat-link">
+                                ⭐ Best Sellers
+                                <span class="pl-popular-badge">Popular</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'ads-listing' %}" class="pl-cat-link">
+                                🔥 Today's Deals
+                                <span class="pl-deal-badge">Hot</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3. MOBILE DRAWER: Comprehensive Mobile Navigation -->
+            <div id="pl-mobile-drawer">
+                <!-- Mobile Search Form -->
+                <form method="GET" action="{% url 'ads-search' %}" style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <input type="text" name="customword" placeholder="Search pre-loved goods..." style="flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 14px; outline: none;">
+                    <button type="submit" class="pl-sell-btn" style="padding: 8px 14px;">Search</button>
+                </form>
+
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">Explore PreLoved</div>
+                <ul style="list-style: none; padding: 0; margin: 0 0 16px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <li><a href="{% url 'home' %}" class="pl-cat-link" style="padding: 6px 0;">🏠 Home</a></li>
+                    <li><a href="{% url 'ads-listing' %}" class="pl-cat-link" style="padding: 6px 0;">📦 All Ads</a></li>
+                    <li><a href="{% url 'ads-listing' %}" class="pl-cat-link" style="padding: 6px 0;">⭐ Best Sellers</a></li>
+                    <li><a href="{% url 'ads-listing' %}" class="pl-cat-link" style="padding: 6px 0;">🔥 Today's Deals</a></li>
+                    <li><a href="{% url 'ads-listing' %}" class="pl-cat-link" style="padding: 6px 0;">🎁 Gift Ideas</a></li>
+                    <li><a href="{% url 'post-ads' %}" class="pl-cat-link" style="padding: 6px 0; color: #4f46e5; font-weight: 700;">💼 Sell Item</a></li>
+                </ul>
+
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">Categories & Subcategories</div>
+                <div class="pl-mobile-cat-accordion" style="margin-bottom: 16px;">
+                    {% if nav_categories %}
+                        {% for cat in nav_categories %}
+                        <div class="pl-mobile-cat-item">
+                            <div class="pl-mobile-cat-header">
+                                <a href="{% url 'category-archive' cat.slug %}" class="pl-mobile-cat-title">{{ cat.category_name }}</a>
+                                {% if cat.subcategories.all %}
+                                <button type="button" class="pl-mobile-cat-btn" data-target="m-cat-{{ cat.id }}" title="Toggle subcategories">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                                {% endif %}
+                            </div>
+                            {% if cat.subcategories.all %}
+                            <div class="pl-mobile-subcat-box" id="m-cat-{{ cat.id }}">
+                                <a href="{% url 'category-archive' cat.slug %}" class="pl-mobile-subcat-link" style="color: #4f46e5; font-weight: 700;">View All in {{ cat.category_name }} &rarr;</a>
+                                {% for sub in cat.subcategories.all %}
+                                <a href="{% url 'category-archive' sub.slug %}" class="pl-mobile-subcat-link" style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>{{ sub.category_name }}</span>
+                                    {% if '>' in sub.category_name %}
+                                    <span style="font-size: 11px; font-weight: 800; color: #4f46e5; background: #e0e7ff; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-left: 6px;">&gt;</span>
+                                    {% endif %}
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">Account & Support</div>
+                <ul style="list-style: none; padding: 0; margin: 0 0 16px 0;">
+                    {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'dashboard' %}" class="pl-menu-item" style="padding: 6px 0;">📊 My Account / Dashboard</a></li>
+                    <li><a href="{% url 'profile-ads' %}" class="pl-menu-item" style="padding: 6px 0;">🏷️ My Ads</a></li>
+                    <li><a href="{% url 'profile-favorite-ads' %}" class="pl-menu-item" style="padding: 6px 0;">❤️ Favourites</a></li>
+                    <li><a href="{% url 'profile-settings' %}" class="pl-menu-item" style="padding: 6px 0;">⚙️ Settings</a></li>
+                    <li><a href="{% url 'logout' %}" class="pl-menu-item" style="padding: 6px 0; color: #ef4444;">🚪 Sign Out</a></li>
+                    {% else %}
+                    <li><a href="{% url 'login' %}" class="pl-menu-item" style="padding: 6px 0; color: #4f46e5; font-weight: 600;">🔑 Log In</a></li>
+                    <li><a href="{% url 'signup' %}" class="pl-menu-item" style="padding: 6px 0; font-weight: 600;">✨ Sign Up / Register</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'faq' %}" class="pl-menu-item" style="padding: 6px 0;">❓ FAQ</a></li>
+                    <li><a href="{% url 'contact' %}" class="pl-menu-item" style="padding: 6px 0;">📞 Contact Us</a></li>
+                </ul>
+
+                <a href="{% url 'post-ads' %}" class="pl-sell-btn" style="width: 100%; justify-content: center; padding: 12px; font-size: 15px;">
+                    + Post An Ad (Sell Free)
+                </a>
+            </div>
+        </nav>
+    </header>
+    <!-- Header Area wrapper End -->
+
+    <!-- Interactive Dropdowns, Cart & Notifications Controller with Persistent State -->
+    <script>
+      (function () {
+        // --- Default Seed Data ---
+        var INITIAL_CART = [
+          { id: 'cart-1', title: 'Apple iPhone 15 (128GB)', price: '$599', qty: 1, condition: 'Like New' },
+          { id: 'cart-2', title: 'Apple iPad Air 5th Gen', price: '$499', qty: 1, condition: 'Excellent' },
+          { id: 'cart-3', title: 'Apple Watch SE (GPS, 44mm)', price: '$299', qty: 1, condition: 'Good Condition' },
+          { id: 'cart-4', title: 'Sony PlayStation 5 Console', price: '$449', qty: 1, condition: 'With Controller' },
+          { id: 'cart-5', title: 'Apple MacBook Air M1 (8GB / 256GB)', price: '$650', qty: 1, condition: 'Battery 94%' }
+        ];
+
+        var INITIAL_NOTIFICATIONS = [
+          { id: 'notif-1', icon: '🏷️', title: 'New Offer Received', text: 'Buyer offered $520 on Apple iPhone 15', time: '5 minutes ago' },
+          { id: 'notif-2', icon: '⚡', title: 'Ad Approved', text: 'Your listing is now live in Gujarat', time: '2 hours ago' },
+          { id: 'notif-3', icon: '🎉', title: 'Welcome to PreLoved!', text: 'Start browsing second-hand items near you', time: '1 day ago' }
+        ];
+
+        function escapeHtml(text) {
+          if (!text) return '';
+          return String(text).replace(/[&<>"']/g, function(m) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+          });
+        }
+
+        // --- LocalStorage State Managers ---
+        function getCartItems() {
+          var stored = localStorage.getItem('preloved_cart_items');
+          if (stored !== null) {
+            try { return JSON.parse(stored); } catch (e) { return []; }
+          }
+          // Seed once on first ever visit
+          localStorage.setItem('preloved_cart_items', JSON.stringify(INITIAL_CART));
+          return INITIAL_CART;
+        }
+
+        function saveCartItems(items) {
+          localStorage.setItem('preloved_cart_items', JSON.stringify(items));
+          renderCart();
+        }
+
+        function getNotifications() {
+          var stored = localStorage.getItem('preloved_notifications');
+          if (stored !== null) {
+            try { return JSON.parse(stored); } catch (e) { return []; }
+          }
+          // Seed once on first ever visit
+          localStorage.setItem('preloved_notifications', JSON.stringify(INITIAL_NOTIFICATIONS));
+          return INITIAL_NOTIFICATIONS;
+        }
+
+        function saveNotifications(items) {
+          localStorage.setItem('preloved_notifications', JSON.stringify(items));
+          renderNotifications();
+        }
+
+        // --- Render Functions ---
+        function renderCart() {
+          var items = getCartItems();
+          var listEl = document.getElementById('plCartList');
+          var emptyEl = document.getElementById('plCartEmpty');
+          var badgeEl = document.getElementById('plCartBadge');
+          var countTextEl = document.getElementById('plCartCountText');
+          var footerEl = document.getElementById('plCartFooter');
+
+          if (!listEl) return;
+
+          if (items.length === 0) {
+            listEl.innerHTML = '';
+            listEl.style.display = 'none';
+            if (emptyEl) emptyEl.style.display = 'block';
+            if (badgeEl) badgeEl.style.display = 'none';
+            if (countTextEl) countTextEl.textContent = '0';
+            if (footerEl) footerEl.style.display = 'none';
+          } else {
+            listEl.style.display = 'block';
+            if (emptyEl) emptyEl.style.display = 'none';
+            if (badgeEl) {
+              badgeEl.style.display = 'inline-block';
+              badgeEl.textContent = items.length;
+            }
+            if (countTextEl) countTextEl.textContent = items.length;
+            if (footerEl) footerEl.style.display = 'block';
+
+            var html = '';
+            items.forEach(function (item) {
+              html += '<div class="pl-cart-item" data-id="' + item.id + '">' +
+                '<div>' +
+                  '<a href="/ads-listing/" class="pl-cart-title">' + escapeHtml(item.title) + '</a>' +
+                  '<div class="pl-cart-meta"><strong style="color: #0f172a;">' + escapeHtml(item.price) + '</strong> &bull; Qty: ' + item.qty + ' &bull; ' + escapeHtml(item.condition) + '</div>' +
+                '</div>' +
+                '<button type="button" class="pl-cart-del" data-id="' + item.id + '" title="Remove item">' +
+                  '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>' +
+                '</button>' +
+              '</div>';
+            });
+            listEl.innerHTML = html;
+
+            listEl.querySelectorAll('.pl-cart-del').forEach(function (btn) {
+              btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var id = btn.getAttribute('data-id');
+                var remaining = getCartItems().filter(function (it) { return it.id !== id; });
+                saveCartItems(remaining);
+              });
+            });
+          }
+        }
+
+        function renderNotifications() {
+          var notifs = getNotifications();
+          var listEl = document.getElementById('plNotifList');
+          var emptyEl = document.getElementById('plNotifEmpty');
+          var badgeEl = document.getElementById('plNotifBadge');
+          var countTextEl = document.getElementById('plNotifCountText');
+
+          if (!listEl) return;
+
+          if (notifs.length === 0) {
+            listEl.innerHTML = '';
+            listEl.style.display = 'none';
+            if (emptyEl) emptyEl.style.display = 'block';
+            if (badgeEl) badgeEl.style.display = 'none';
+            if (countTextEl) countTextEl.textContent = '0';
+          } else {
+            listEl.style.display = 'block';
+            if (emptyEl) emptyEl.style.display = 'none';
+            if (badgeEl) {
+              badgeEl.style.display = 'inline-block';
+              badgeEl.textContent = notifs.length;
+            }
+            if (countTextEl) countTextEl.textContent = notifs.length;
+
+            var html = '';
+            notifs.forEach(function (n, index) {
+              if (index > 0) {
+                html += '<li class="pl-menu-divider"></li>';
+              }
+              html += '<li class="pl-notif-item" data-id="' + n.id + '">' +
+                '<a href="/ads-listing/" class="pl-menu-item" style="padding: 0; flex: 1; align-items: flex-start; gap: 10px;">' +
+                  '<span style="font-size: 16px;">' + n.icon + '</span>' +
+                  '<div>' +
+                    '<div style="font-size: 12px; font-weight: 700; color: #0f172a;">' + escapeHtml(n.title) + '</div>' +
+                    '<div style="font-size: 11px; color: #64748b;">' + escapeHtml(n.text) + '</div>' +
+                    '<div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">' + escapeHtml(n.time) + '</div>' +
+                  '</div>' +
+                '</a>' +
+                '<button type="button" class="pl-notif-del" data-id="' + n.id + '" title="Dismiss notification">&times;</button>' +
+              '</li>';
+            });
+            listEl.innerHTML = html;
+
+            listEl.querySelectorAll('.pl-notif-del').forEach(function (btn) {
+              btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                var id = btn.getAttribute('data-id');
+                var remaining = getNotifications().filter(function (it) { return it.id !== id; });
+                saveNotifications(remaining);
+              });
+            });
+          }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          // 1. Initial Render from LocalStorage
+          renderCart();
+          renderNotifications();
+
+          // 2. Dropdown Toggles
+          function setupDropdown(btnId, menuId) {
+            var btn = document.getElementById(btnId);
+            var menu = document.getElementById(menuId);
+            if (!btn || !menu) return;
+
+            btn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              document.querySelectorAll('.pl-menu').forEach(function (m) {
+                if (m !== menu) m.classList.remove('show');
+              });
+              menu.classList.toggle('show');
+            });
+          }
+
+          setupDropdown('plLocationBtn', 'plLocationMenu');
+          setupDropdown('plNotifBtn', 'plNotifMenu');
+          setupDropdown('plCartBtn', 'plCartMenu');
+          setupDropdown('plAccountBtn', 'plAccountMenu');
+
+          // Mobile Drawer
+          var mobileBtn = document.getElementById('plMobileToggleBtn');
+          var mobileDrawer = document.getElementById('pl-mobile-drawer');
+          if (mobileBtn && mobileDrawer) {
+            mobileBtn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              mobileDrawer.classList.toggle('show');
+            });
+          }
+
+          // 3. Category Dropdown Click & Touch Handlers
+          document.querySelectorAll('.pl-cat-dropdown-wrap').forEach(function(wrap) {
+            var trigger = wrap.querySelector('.pl-cat-btn, #plAllCatBtn');
+            var menu = wrap.querySelector('.pl-cat-dropdown-menu, .pl-mega-menu');
+            if (trigger && menu) {
+              trigger.addEventListener('click', function(e) {
+                // If it has subcategories / mega-menu, clicking the category toggles options
+                e.preventDefault();
+                e.stopPropagation();
+                var wasOpen = wrap.classList.contains('is-open');
+                document.querySelectorAll('.pl-cat-dropdown-wrap.is-open').forEach(function(w) {
+                  w.classList.remove('is-open');
+                });
+                if (!wasOpen) {
+                  wrap.classList.add('is-open');
+                }
+              });
+            }
+          });
+
+          // 4. Mobile Category Accordion Toggle
+          document.querySelectorAll('.pl-mobile-cat-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              var targetId = btn.getAttribute('data-target');
+              var box = document.getElementById(targetId);
+              if (box) {
+                var isShown = box.classList.contains('show');
+                box.classList.toggle('show', !isShown);
+                btn.classList.toggle('open', !isShown);
+              }
+            });
+          });
+
+          // Close on outside click
+          document.addEventListener('click', function (e) {
+            document.querySelectorAll('.pl-menu').forEach(function (m) {
+              if (!m.contains(e.target)) {
+                m.classList.remove('show');
+              }
+            });
+            document.querySelectorAll('.pl-cat-dropdown-wrap.is-open').forEach(function (w) {
+              if (!w.contains(e.target)) {
+                w.classList.remove('is-open');
+              }
+            });
+            if (mobileDrawer && !mobileDrawer.contains(e.target) && !mobileBtn.contains(e.target)) {
+              mobileDrawer.classList.remove('show');
+            }
+          });
+
+          // Clear & Reset Cart Buttons
+          var clearCartBtn = document.getElementById('plClearCartBtn');
+          if (clearCartBtn) {
+            clearCartBtn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              saveCartItems([]);
+            });
+          }
+          var resetCartBtn = document.getElementById('plResetCartBtn');
+          if (resetCartBtn) {
+            resetCartBtn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              saveCartItems(INITIAL_CART);
+            });
+          }
+
+          // Clear & Reset Notifications Buttons
+          var clearNotifBtn = document.getElementById('plClearNotifBtn');
+          if (clearNotifBtn) {
+            clearNotifBtn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              saveNotifications([]);
+            });
+          }
+          var resetNotifBtn = document.getElementById('plResetNotifBtn');
+          if (resetNotifBtn) {
+            resetNotifBtn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              saveNotifications(INITIAL_NOTIFICATIONS);
+            });
+          }
+        });
+      })();
+    </script>
